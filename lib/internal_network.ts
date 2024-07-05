@@ -2,6 +2,22 @@ import axios from "axios";
 import Result from "./result";
 import GenericError from "./err";
 
+export interface IWalletResponse {
+	message: IWalletResponseMessage;
+}
+
+interface IWalletResponseMessage {
+	id: string;
+	name: string;
+	company_ref: string;
+	balance: number;
+	notifications: {
+		sms: number;
+		email: number;
+		whatsapp: number;
+	};
+}
+
 const ChargeStatus: {
 	[x: string]: "PAID" | "TOBEACCEPT" | "WAITINGPAYMENT" | "OVERDUE";
 } = {
@@ -114,6 +130,8 @@ export default class InternalServiceNetwork {
 			this.send_deny_payment_notification_watsapp.bind(this);
 		this.send_create_invoice_notification_watsapp =
 			this.send_create_invoice_notification_watsapp.bind(this);
+
+		this.get_company_wallet = this.get_company_wallet.bind(this);
 	}
 
 	private host({ SERVICE, PATH }: HOST): string {
@@ -124,6 +142,35 @@ export default class InternalServiceNetwork {
 		else if (SERVICE === "notification") p = 3004;
 
 		return `http://${SERVICE}:${p}/${PATH}`;
+	}
+
+	public async get_company_wallet(
+		ref: string,
+	): Promise<Result<IWalletResponseMessage>> {
+		const headers = {
+			"Content-Type": "application/json",
+			Authorization: this.auth_token,
+		};
+
+		try {
+			const r = await axios.get(
+				this.host({
+					SERVICE: SERVICE.AUTHENTICATIOIN,
+					PATH: `v1/api/credit/wallet/cref/${ref}`,
+				}),
+				{
+					headers,
+				},
+			);
+
+			if (r.status !== 200)
+				return Result.failure(GenericError.unexpected_error______);
+
+			const data: IWalletResponse = r.data;
+			return Result.success(data.message as IWalletResponseMessage);
+		} catch (error) {
+			return Result.failure(GenericError.unexpected_error______);
+		}
 	}
 
 	public async create_customer(
