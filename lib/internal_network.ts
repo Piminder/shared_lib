@@ -149,13 +149,12 @@ export default class InternalServiceNetwork {
 	): Promise<Result<IWalletResponseMessage>> {
 		const headers = {
 			"Content-Type": "application/json",
-			Authorization: this.auth_token,
 		};
 
 		try {
 			const r = await axios.get(
 				this.host({
-					SERVICE: SERVICE.AUTHENTICATIOIN,
+					SERVICE: SERVICE.CREDIT,
 					PATH: `v1/api/credit/wallet/cref/${ref}`,
 				}),
 				{
