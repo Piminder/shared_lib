@@ -2,6 +2,13 @@ import axios from "axios";
 import Result from "./result";
 import GenericError from "./err";
 
+interface INotificationServiceDiscountArgs {
+	wallet_id: string;
+	pkg: boolean;
+	whatsapp: boolean;
+	service_ref: string;
+}
+
 export interface IWalletResponse {
 	message: IWalletResponseMessage;
 }
@@ -132,6 +139,8 @@ export default class InternalServiceNetwork {
 			this.send_create_invoice_notification_watsapp.bind(this);
 
 		this.get_company_wallet = this.get_company_wallet.bind(this);
+		this.discount_the_value_of_the_notification_service =
+			this.discount_the_value_of_the_notification_service.bind(this);
 	}
 
 	private host({ SERVICE, PATH }: HOST): string {
@@ -167,6 +176,50 @@ export default class InternalServiceNetwork {
 
 			const data: IWalletResponse = r.data;
 			return Result.success(data.message as IWalletResponseMessage);
+		} catch (error) {
+			return Result.failure(GenericError.unexpected_error______);
+		}
+	}
+
+	public async discount_the_value_of_the_notification_service({
+		wallet_id,
+		pkg,
+		whatsapp,
+		service_ref,
+	}: INotificationServiceDiscountArgs): Promise<Result<void>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
+
+		const request_data = {
+			wallet_id: wallet_id,
+			service: {
+				buy: {
+					notification: {
+						sms_mail: pkg,
+						whatsapp: whatsapp,
+						service_ref: service_ref,
+					},
+				},
+			},
+		};
+
+		try {
+			const auth_response = await axios.post(
+				this.host({
+					SERVICE: SERVICE.CREDIT,
+					PATH: "v1/api/credit/wallet/debit",
+				}),
+				request_data,
+				{
+					headers,
+				},
+			);
+
+			if (auth_response.status !== 200)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(void 0);
 		} catch (error) {
 			return Result.failure(GenericError.unexpected_error______);
 		}
