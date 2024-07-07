@@ -141,6 +141,8 @@ export default class InternalServiceNetwork {
 		this.get_company_wallet = this.get_company_wallet.bind(this);
 		this.discount_the_value_of_the_notification_service =
 			this.discount_the_value_of_the_notification_service.bind(this);
+
+		this.create_wallet = this.create_wallet.bind(this);
 	}
 
 	private host({ SERVICE, PATH }: HOST): string {
@@ -151,6 +153,40 @@ export default class InternalServiceNetwork {
 		else if (SERVICE === "notification") p = 3004;
 
 		return `http://${SERVICE}:${p}/${PATH}`;
+	}
+
+	public async create_wallet(
+		name: string,
+		company_ref: string,
+	): Promise<Result<string>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
+
+		const request_data = {
+			name: name,
+			company_ref: company_ref,
+		};
+
+		try {
+			const r = await axios.post(
+				this.host({
+					SERVICE: SERVICE.CREDIT,
+					PATH: "v1/api/credit/wallet/create",
+				}),
+				request_data,
+				{
+					headers,
+				},
+			);
+
+			if (r.status !== 200)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(r.data.message.id);
+		} catch (error) {
+			return Result.failure(GenericError.unexpected_error______);
+		}
 	}
 
 	public async get_company_wallet(
