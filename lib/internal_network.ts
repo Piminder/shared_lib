@@ -341,7 +341,7 @@ export default class InternalServiceNetwork {
 
 	public async create_product(
 		args: ICreateProductArgs,
-	): Promise<Result<IProductMessage>> {
+	): Promise<Result<string>> {
 		const headers = {
 			"Content-Type": "application/json",
 			Authorization: this.auth_token,
