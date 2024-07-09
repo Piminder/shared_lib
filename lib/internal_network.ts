@@ -2,6 +2,14 @@ import axios from "axios";
 import Result from "./result";
 import GenericError from "./err";
 
+export interface ICreateProductArgs {
+	name: string;
+	description: string;
+	price: number;
+	save: boolean;
+	is_signature: boolean;
+	interval: number;
+}
 interface INotificationServiceDiscountArgs {
 	wallet_id: string;
 	pkg: boolean;
@@ -72,22 +80,12 @@ interface INotificationArgs {
 	installment_description: string;
 }
 
-interface IProductArgs {
-	name: string;
-	description: string;
-	price: number;
-}
-
 interface IProductResponse {
 	message: IProductMessage;
 }
 
 interface IProductMessage {
 	id: string;
-	name: string;
-	description: string;
-	price: number;
-	is_public: boolean;
 }
 
 interface ICustomerArgs {
@@ -342,17 +340,11 @@ export default class InternalServiceNetwork {
 	}
 
 	public async create_product(
-		args: IProductArgs,
+		args: ICreateProductArgs,
 	): Promise<Result<IProductMessage>> {
 		const headers = {
 			"Content-Type": "application/json",
 			Authorization: this.auth_token,
-		};
-
-		const request_data = {
-			name: args.name,
-			description: args.description,
-			price: args.price,
 		};
 
 		try {
@@ -361,7 +353,7 @@ export default class InternalServiceNetwork {
 					SERVICE: SERVICE.PRODUCT,
 					PATH: "v1/api/product",
 				}),
-				request_data,
+				args,
 				{
 					headers,
 				},
