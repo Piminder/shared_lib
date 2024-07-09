@@ -348,7 +348,7 @@ export default class InternalServiceNetwork {
 		};
 
 		try {
-			const product_response = await axios.post(
+			const r = await axios.post(
 				this.host({
 					SERVICE: SERVICE.PRODUCT,
 					PATH: "v1/api/product",
@@ -359,11 +359,10 @@ export default class InternalServiceNetwork {
 				},
 			);
 
-			if (product_response.status !== 200)
+			if (r.status !== 200)
 				return Result.failure(GenericError.unexpected_error______);
 
-			const res: IProductResponse = product_response.data;
-			return Result.success(res.message as IProductMessage);
+			return Result.success(r.data.message);
 		} catch (error) {
 			return Result.failure(GenericError.unexpected_error______);
 		}
