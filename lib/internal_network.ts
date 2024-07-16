@@ -142,6 +142,7 @@ export default class InternalServiceNetwork {
 
 		this.create_wallet = this.create_wallet.bind(this);
 		this.send_any_sms_message = this.send_any_sms_message.bind(this);
+		this.notify_about_deposit = this.notify_about_deposit.bind(this);
 	}
 
 	private host({ SERVICE, PATH }: HOST): string {
@@ -152,6 +153,42 @@ export default class InternalServiceNetwork {
 		else if (SERVICE === "notification") p = 3004;
 
 		return `http://${SERVICE}:${p}/${PATH}`;
+	}
+
+	public async notify_about_deposit(
+		to: string,
+		amount: number,
+		txr_id: string,
+	): Promise<Result<void>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
+
+		const request_data = {
+			to: to,
+			amount: amount,
+			txr_id: txr_id,
+		};
+
+		try {
+			const notify_response = await axios.post(
+				this.host({
+					SERVICE: SERVICE.NOTIFICATION,
+					PATH: "v1/api/notification/wallet-deposit-mail",
+				}),
+				request_data,
+				{
+					headers,
+				},
+			);
+
+			if (notify_response.status !== 204)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(void 0);
+		} catch (error) {
+			return Result.failure(GenericError.unexpected_error______);
+		}
 	}
 
 	public async send_any_sms_message(
