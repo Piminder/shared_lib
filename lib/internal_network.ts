@@ -356,24 +356,28 @@ export default class InternalServiceNetwork {
 			},
 		};
 
-		const auth_response = await axios.post(
-			this.host({
-				SERVICE: SERVICE.AUTHENTICATIOIN,
-				PATH: "v1/api/auth/customer/create",
-			}),
-			request_data,
-			{
-				headers,
-			},
-		);
+		try {
+			const auth_response = await axios.post(
+				this.host({
+					SERVICE: SERVICE.AUTHENTICATIOIN,
+					PATH: "v1/api/auth/customer/create",
+				}),
+				request_data,
+				{ headers },
+			);
 
-		if (auth_response.status !== 200) {
-			console.log(`HTTP error: ${auth_response.data.message}`);
-			return Result.failure(auth_response.data.message);
+			if (auth_response.status !== 200) {
+				console.log(`HTTP error: ${auth_response.data.message}`);
+				return Result.failure(auth_response.data.message);
+			}
+
+			const res: ICustomerResponse = auth_response.data;
+			return Result.success(res.message as ICustomerMessage);
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		} catch (error: any) {
+			console.log(`Unexpected error: ${error.response.data.message}`);
+			return Result.failure(error.response.data.message);
 		}
-
-		const res: ICustomerResponse = auth_response.data;
-		return Result.success(res.message as ICustomerMessage);
 	}
 
 	public async create_product(
