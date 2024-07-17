@@ -92,6 +92,7 @@ interface ICustomerArgs {
 	first_name: string;
 	email: string;
 	phone: string;
+	identification_number: string | undefined;
 	company_id: string;
 }
 
@@ -344,6 +345,7 @@ export default class InternalServiceNetwork {
 				first_name: args.first_name,
 				phone: args.phone,
 				email: args.email,
+				identification_number: args.identification_number,
 				birthday: "1990-01-01",
 			},
 			address: {
@@ -367,7 +369,7 @@ export default class InternalServiceNetwork {
 			);
 
 			if (auth_response.status !== 200)
-				return Result.failure(GenericError.unexpected_error______);
+				return Result.failure(auth_response.data.message);
 
 			const res: ICustomerResponse = auth_response.data;
 			return Result.success(res.message as ICustomerMessage);
