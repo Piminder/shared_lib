@@ -368,12 +368,15 @@ export default class InternalServiceNetwork {
 				},
 			);
 
-			if (auth_response.status !== 200)
+			if (auth_response.status !== 200) {
+				console.log(`HTTP error: ${auth_response.data.message}`);
 				return Result.failure(auth_response.data.message);
+			}
 
 			const res: ICustomerResponse = auth_response.data;
 			return Result.success(res.message as ICustomerMessage);
 		} catch (error) {
+			console.log(`Unexpected error: ${error}`);
 			return Result.failure(GenericError.unexpected_error______);
 		}
 	}
