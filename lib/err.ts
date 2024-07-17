@@ -16,6 +16,7 @@ const GenericError = {
   data_not_found________: "E-018",
   invalid_data__________: "E-020",
   feat_not_implemented__: "E-021",
+  client_duplicate_data_: "E-022", // Se o client passado, tem os mesmos dados a nivel de email, phone e nuit.
 
   it_was_impossible_to_send_otp: "E-017",
   company_has_already_been_verified: "E-019",
