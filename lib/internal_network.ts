@@ -144,6 +144,8 @@ export default class InternalServiceNetwork {
 		this.create_wallet = this.create_wallet.bind(this);
 		this.send_any_sms_message = this.send_any_sms_message.bind(this);
 		this.notify_about_deposit = this.notify_about_deposit.bind(this);
+
+		this.test_deposit = this.test_deposit.bind(this);
 	}
 
 	private host({ SERVICE, PATH }: HOST): string {
