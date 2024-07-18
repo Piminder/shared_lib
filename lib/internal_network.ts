@@ -288,6 +288,44 @@ export default class InternalServiceNetwork {
 		}
 	}
 
+	public async test_deposit(
+		wallet_id: string,
+		amount: number,
+	): Promise<Result<void>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
+
+		const request_data = {
+			wallet_id: wallet_id,
+			amount: amount,
+			method: {
+				name: "test",
+				phone_number: "877134964",
+			},
+		};
+
+		try {
+			const auth_response = await axios.post(
+				this.host({
+					SERVICE: SERVICE.CREDIT,
+					PATH: "v1/api/credit/wallet/deposit",
+				}),
+				request_data,
+				{
+					headers,
+				},
+			);
+
+			if (auth_response.status !== 200)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(void 0);
+		} catch (error) {
+			return Result.failure(GenericError.unexpected_error______);
+		}
+	}
+
 	public async discount_the_value_of_the_notification_service({
 		wallet_id,
 		pkg,
