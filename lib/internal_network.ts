@@ -92,6 +92,7 @@ interface ICustomerArgs {
 	first_name: string;
 	email: string;
 	phone: string;
+	identification_number: string | undefined;
 	company_id: string;
 }
 
@@ -143,6 +144,10 @@ export default class InternalServiceNetwork {
 		this.create_wallet = this.create_wallet.bind(this);
 		this.send_any_sms_message = this.send_any_sms_message.bind(this);
 		this.notify_about_deposit = this.notify_about_deposit.bind(this);
+
+		this.test_deposit = this.test_deposit.bind(this);
+
+		this.dispose_notification_file = this.dispose_notification_file.bind(this);
 	}
 
 	private host({ SERVICE, PATH }: HOST): string {
@@ -287,6 +292,44 @@ export default class InternalServiceNetwork {
 		}
 	}
 
+	public async test_deposit(
+		wallet_id: string,
+		amount: number,
+	): Promise<Result<void>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
+
+		const request_data = {
+			wallet_id: wallet_id,
+			amount: amount,
+			method: {
+				name: "test",
+				phone_number: "877134964",
+			},
+		};
+
+		try {
+			const auth_response = await axios.post(
+				this.host({
+					SERVICE: SERVICE.CREDIT,
+					PATH: "v1/api/credit/wallet/deposit",
+				}),
+				request_data,
+				{
+					headers,
+				},
+			);
+
+			if (auth_response.status !== 200)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(void 0);
+		} catch (error) {
+			return Result.failure(GenericError.unexpected_error______);
+		}
+	}
+
 	public async discount_the_value_of_the_notification_service({
 		wallet_id,
 		pkg,
@@ -344,6 +387,7 @@ export default class InternalServiceNetwork {
 				first_name: args.first_name,
 				phone: args.phone,
 				email: args.email,
+				identification_number: args.identification_number,
 				birthday: "1990-01-01",
 			},
 			address: {
@@ -361,18 +405,20 @@ export default class InternalServiceNetwork {
 					PATH: "v1/api/auth/customer/create",
 				}),
 				request_data,
-				{
-					headers,
-				},
+				{ headers },
 			);
 
-			if (auth_response.status !== 200)
-				return Result.failure(GenericError.unexpected_error______);
+			if (auth_response.status !== 200) {
+				console.log(`HTTP error: ${auth_response.data.message}`);
+				return Result.failure(auth_response.data.message);
+			}
 
 			const res: ICustomerResponse = auth_response.data;
 			return Result.success(res.message as ICustomerMessage);
-		} catch (error) {
-			return Result.failure(GenericError.unexpected_error______);
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		} catch (error: any) {
+			console.log(`Unexpected error: ${error.response.data.message}`);
+			return Result.failure(error.response.data.message);
 		}
 	}
 
@@ -667,6 +713,34 @@ export default class InternalServiceNetwork {
 			return Result.success(true);
 		} catch (error) {
 			return Result.failure(GenericError.unexpected_error______);
+		}
+	}
+
+	public async dispose_notification_file(
+		company_id: string,
+	): Promise<Result<void>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
+
+		try {
+			const r = await axios.delete(
+				this.host({
+					SERVICE: SERVICE.NOTIFICATION,
+					PATH: `v1/api/notification/dispose?company_id=${company_id}`,
+				}),
+				{
+					headers,
+				},
+			);
+
+			if (r.status !== 204)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(void 0);
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		} catch (error: any) {
+			return Result.failure(error.response.data.message);
 		}
 	}
 }
