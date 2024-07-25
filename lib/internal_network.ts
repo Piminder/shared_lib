@@ -146,6 +146,8 @@ export default class InternalServiceNetwork {
 		this.notify_about_deposit = this.notify_about_deposit.bind(this);
 
 		this.test_deposit = this.test_deposit.bind(this);
+
+		this.dispose_notification_file = this.dispose_notification_file.bind(this);
 	}
 
 	private host({ SERVICE, PATH }: HOST): string {
@@ -711,6 +713,34 @@ export default class InternalServiceNetwork {
 			return Result.success(true);
 		} catch (error) {
 			return Result.failure(GenericError.unexpected_error______);
+		}
+	}
+
+	public async dispose_notification_file(
+		company_id: string,
+	): Promise<Result<void>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
+
+		try {
+			const r = await axios.delete(
+				this.host({
+					SERVICE: SERVICE.NOTIFICATION,
+					PATH: `v1/api/notification/dispose?company_id=${company_id}`,
+				}),
+				{
+					headers,
+				},
+			);
+
+			if (r.status !== 204)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(void 0);
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		} catch (error: any) {
+			return Result.failure(error.response.data.message);
 		}
 	}
 }
