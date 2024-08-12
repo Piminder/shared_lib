@@ -27,6 +27,7 @@ const GenericError = {
 	error_getting_wallet__: "E-026", // "Erro ao obter carteira da empresa"
 
 	invalid_payload_______: "E-027", // payload invalido
+	invalid_payload_fragment: "E-028", // uma parte do payload é invalida ou não existe
 };
 
 export default GenericError;
