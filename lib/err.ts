@@ -25,6 +25,8 @@ const GenericError = {
 	insufficient_balance_short: "E-024", // "Erro: Saldo insuficiente para esta operação"
 	balance_undefined_____: "E-025", // "Erro: o saldo está indefinido"
 	error_getting_wallet__: "E-026", // "Erro ao obter carteira da empresa"
+
+	invalid_payload_______: "E-027", // payload invalido
 };
 
 export default GenericError;
