@@ -144,7 +144,7 @@ export default class InternalServiceNetwork {
 
 	public async send_recovery_password_mail(
 		owner_name: string,
-		mail: number,
+		mail: string,
 		token: string,
 	): Promise<Result<void>> {
 		const headers = {
