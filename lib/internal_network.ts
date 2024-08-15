@@ -112,6 +112,9 @@ export default class InternalServiceNetwork {
 	constructor(auth_token: string) {
 		this.auth_token = auth_token;
 
+		this.send_recovery_password_mail =
+			this.send_recovery_password_mail.bind(this);
+
 		this.create_customer = this.create_customer.bind(this);
 		this.create_product = this.create_product.bind(this);
 		this.send_mail_notification = this.send_mail_notification.bind(this);
@@ -137,6 +140,43 @@ export default class InternalServiceNetwork {
 		this.test_deposit = this.test_deposit.bind(this);
 
 		this.dispose_notification_file = this.dispose_notification_file.bind(this);
+	}
+
+	public async send_recovery_password_mail(
+		owner_name: string,
+		mail: number,
+		token: string,
+	): Promise<Result<void>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
+
+		const request_data = {
+			owner_name: owner_name,
+			mail: mail,
+			token: token,
+		};
+
+		try {
+			const notify_response = await axios.post(
+				host({
+					SERVICE: SERVICE.NOTIFICATION,
+					PATH: "v1/api/notification/auth/password",
+				}),
+				request_data,
+				{
+					headers,
+				},
+			);
+
+			if (notify_response.status !== 204)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(void 0);
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		} catch (err: any) {
+			return Result.failure(err.response.data.message);
+		}
 	}
 
 	public async notify_about_deposit(
