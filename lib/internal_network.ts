@@ -1,6 +1,7 @@
 import axios from "axios";
 import Result from "./result";
 import GenericError from "./err";
+import { host, SERVICE } from "./cc_conf";
 
 export interface ICreateProductArgs {
 	name: string;
@@ -106,22 +107,13 @@ interface ICustomerMessage {
 	email: string;
 }
 
-enum SERVICE {
-	AUTHENTICATIOIN = "auth",
-	PRODUCT = "product",
-	NOTIFICATION = "notification",
-	CREDIT = "credit",
-}
-
-interface HOST {
-	SERVICE: SERVICE;
-	PATH: string;
-}
-
 export default class InternalServiceNetwork {
 	auth_token: string;
 	constructor(auth_token: string) {
 		this.auth_token = auth_token;
+
+		this.send_recovery_password_mail =
+			this.send_recovery_password_mail.bind(this);
 
 		this.create_customer = this.create_customer.bind(this);
 		this.create_product = this.create_product.bind(this);
@@ -150,14 +142,41 @@ export default class InternalServiceNetwork {
 		this.dispose_notification_file = this.dispose_notification_file.bind(this);
 	}
 
-	private host({ SERVICE, PATH }: HOST): string {
-		let p = 0;
-		if (SERVICE === "auth") p = 3000;
-		else if (SERVICE === "credit") p = 3002;
-		else if (SERVICE === "product") p = 3003;
-		else if (SERVICE === "notification") p = 3004;
+	public async send_recovery_password_mail(
+		owner_name: string,
+		mail: number,
+		token: string,
+	): Promise<Result<void>> {
+		const headers = {
+			"Content-Type": "application/json",
+		};
 
-		return `http://${SERVICE}:${p}/${PATH}`;
+		const request_data = {
+			owner_name: owner_name,
+			mail: mail,
+			token: token,
+		};
+
+		try {
+			const notify_response = await axios.post(
+				host({
+					SERVICE: SERVICE.NOTIFICATION,
+					PATH: "v1/api/notification/auth/password",
+				}),
+				request_data,
+				{
+					headers,
+				},
+			);
+
+			if (notify_response.status !== 204)
+				return Result.failure(GenericError.unexpected_error______);
+
+			return Result.success(void 0);
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		} catch (err: any) {
+			return Result.failure(err.response.data.message);
+		}
 	}
 
 	public async notify_about_deposit(
@@ -177,7 +196,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const notify_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: "v1/api/notification/wallet-deposit-mail",
 				}),
@@ -211,7 +230,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const r = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: "v1/api/notification/sms",
 				}),
@@ -245,7 +264,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const r = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.CREDIT,
 					PATH: "v1/api/credit/wallet/create",
 				}),
@@ -273,7 +292,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const r = await axios.get(
-				this.host({
+				host({
 					SERVICE: SERVICE.CREDIT,
 					PATH: `v1/api/credit/wallet/cref/${ref}`,
 				}),
@@ -311,7 +330,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const auth_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.CREDIT,
 					PATH: "v1/api/credit/wallet/deposit",
 				}),
@@ -355,7 +374,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const auth_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.CREDIT,
 					PATH: "v1/api/credit/wallet/debit",
 				}),
@@ -400,7 +419,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const auth_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.AUTHENTICATIOIN,
 					PATH: "v1/api/auth/customer/create",
 				}),
@@ -432,7 +451,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const r = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.PRODUCT,
 					PATH: "v1/api/product",
 				}),
@@ -471,7 +490,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const notify_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: "v1/api/notification/invoice/mail",
 				}),
@@ -514,7 +533,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const notify_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.CREDIT,
 					PATH: "v1/api/credit/discount",
 				}),
@@ -550,7 +569,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const notify_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: "v1/api/notification/invoice/sms",
 				}),
@@ -589,7 +608,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const notify_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: "v1/api/notification/invoice/mail/confirm",
 				}),
@@ -625,7 +644,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const notify_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: "v1/api/notification/whatsapp/confirm-payment",
 				}),
@@ -661,7 +680,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const notify_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: "v1/api/notification/whatsapp/deny-payment",
 				}),
@@ -697,7 +716,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const notify_response = await axios.post(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: "v1/api/notification/whatsapp/create-invoice",
 				}),
@@ -725,7 +744,7 @@ export default class InternalServiceNetwork {
 
 		try {
 			const r = await axios.delete(
-				this.host({
+				host({
 					SERVICE: SERVICE.NOTIFICATION,
 					PATH: `v1/api/notification/dispose?company_id=${company_id}`,
 				}),
