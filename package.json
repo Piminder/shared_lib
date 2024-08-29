@@ -1,17 +1,19 @@
 {
-	"name": "shared_lib",
-	"module": "lib/index.ts",
-	"main": "lib/index.js",
-	"types": "lib/index.d.ts",
-	"type": "module",
-	"devDependencies": {
-		"@types/axios": "^0.14.0",
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5.0.0"
-	},
-	"dependencies": {
-		"axios": "^1.7.2"
-	}
+  "name": "shared_lib",
+  "module": "lib/index.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/bun": "latest",
+    "@types/express": "^4.17.21"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "express": "^4.19.2"
+  }
 }
