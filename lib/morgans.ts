@@ -1,6 +1,18 @@
 import type { Request, Response, NextFunction } from "express";
 
+/**
+ * Classe Morgans responsável por registrar logs detalhados de requisições HTTP.
+ * O nome 'Morgans' é uma referência a um personagem de 'One Piece'.
+ */
 class Morgans {
+  /**
+   * Middleware para registrar logs de início e término de requisições HTTP.
+   * Também trata casos onde a requisição é fechada prematuramente ou ocorre um erro.
+   *
+   * @param req - Objeto da requisição HTTP.
+   * @param res - Objeto da resposta HTTP.
+   * @param next - Função para passar o controle para o próximo middleware.
+   */
   public static big_news(
     req: Request,
     res: Response,
