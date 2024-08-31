@@ -18,6 +18,34 @@ interface INotificationServiceDiscountArgs {
   service_ref: string;
 }
 
+export interface ICompanyResponse {
+  message: ICompany;
+}
+
+export interface ICompany {
+  id: string | null;
+  is_verified: boolean | null;
+  email: string | null;
+  name: string | null;
+  nuit: string | null;
+  is_ei: boolean | null;
+  owner_name: string | null;
+  phone: string | null;
+  profile_picture_destination: string | null;
+  plan: {
+    name: string | null;
+    value: number | null;
+  };
+  address: {
+    country: number | null;
+    region: number | null;
+    city: number | null;
+    street: string | null;
+    complement: string | null;
+    postal_code: string | null;
+  };
+}
+
 export interface IWalletResponse {
   message: IWalletResponseMessage;
 }
@@ -120,6 +148,8 @@ export default class InternalServiceNetwork {
 
   constructor(auth_token: string) {
     this.auth_token = auth_token;
+
+    this.get_company = this.get_company.bind(this);
 
     this.send_recovery_password_mail =
       this.send_recovery_password_mail.bind(this);
@@ -292,6 +322,32 @@ export default class InternalServiceNetwork {
     }
   }
 
+  public async get_company(id: string): Promise<Result<ICompany>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const r = await axios.get(
+        host({
+          SERVICE: SERVICE.AUTHENTICATIOIN,
+          PATH: `v1/api/auth/company?id=${id}`,
+        }),
+        {
+          headers,
+        },
+      );
+
+      if (r.status !== 200)
+        return Result.failure(GenericError.unexpected_error______);
+
+      const data: ICompanyResponse = r.data;
+      return Result.success(data.message as ICompany);
+    } catch (error: any) {
+      console.log(`Unexpected error: ${error.response.data.message}`);
+      return Result.failure(error.response.data.message);
+    }
+  }
   public async get_company_wallet(
     ref: string,
   ): Promise<Result<IWalletResponseMessage>> {
