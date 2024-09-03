@@ -1,3 +1,14 @@
+/**
+    * chamadas com `*` são chamadas c2c e não precisam de token para serem acessadas,
+    * mas precisam de um fragmento especifo para serem respondidas corretamente.
+
+    * chamadas com `no-token`, são para rotas publicas c2c
+
+    * chamadas com `Bearer xxx...` são para rotas privadas.
+
+    * você pode injetar o token poís instanciação de um objeto, usando `instance.subscribe_token(i)`
+*/
+
 import axios from "axios";
 import Result from "./result";
 import GenericError from "./err";
@@ -483,10 +494,15 @@ export default class InternalServiceNetwork {
     };
 
     try {
+      const path =
+        "*" === this.auth_token
+          ? "v1/api/auth/internal/customer"
+          : "v1/api/auth/customer/create";
+
       const auth_response = await axios.post(
         host({
           SERVICE: SERVICE.AUTHENTICATIOIN,
-          PATH: "v1/api/auth/customer/create",
+          PATH: path,
         }),
         request_data,
         { headers },
