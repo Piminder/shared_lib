@@ -49,6 +49,8 @@ type CallBack = (
   data: BroadcastPaymentData | BroadcastStorePaymentData,
 ) => void;
 
+export type EmitEvent = "sale_created" | "customer_created";
+
 export default class Listener {
   private SERVER_URL: string;
 
@@ -93,5 +95,9 @@ export default class Listener {
     this.io.on("disconnect", () => {
       console.log("Desconectado do servidor");
     });
+  }
+
+  public emit(event: EmitEvent, data: any) {
+    this.io.emit(event, data);
   }
 }
