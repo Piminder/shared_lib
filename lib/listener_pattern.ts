@@ -17,6 +17,7 @@ export interface BroadcastStorePaymentData {
   store_client_email: string;
   store_client_phone: string;
   to_parcel: string;
+  transaction_reference: string;
   message: string;
 }
 
@@ -64,6 +65,7 @@ export const is_broadcast_store_payment_data = (
     store_client_email: "string",
     store_client_phone: "string",
     to_parcel: "string",
+    transaction_reference: "string",
     message: "string",
   });
 
