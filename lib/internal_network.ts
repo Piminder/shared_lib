@@ -496,7 +496,7 @@ export default class InternalServiceNetwork {
     try {
       const path =
         "*" === this.auth_token
-          ? "v1/api/auth/internal/customer"
+          ? `v1/api/auth/internal/customer?company_id=${args.company_id}`
           : "v1/api/auth/customer/create";
 
       const auth_response = await axios.post(
