@@ -20,6 +20,29 @@ export interface BroadcastStorePaymentData {
   message: string;
 }
 
+export interface BroadcastStoreCreateSaleData {
+  phone: string;
+  email: string;
+  corporate_customer_reference: string;
+  product_id: string;
+  value: number;
+  transaction_reference: string;
+  message: string;
+}
+
+export const is_broadcast_store_create_sale_data = (
+  data: any,
+): data is BroadcastStoreCreateSaleData =>
+  is_of_type<BroadcastStoreCreateSaleData>(data, {
+    phone: "string",
+    email: "string",
+    corporate_customer_reference: "string",
+    product_id: "string",
+    value: "number",
+    transaction_reference: "string",
+    message: "string",
+  });
+
 export const is_broadcast_payment_data = (
   data: any,
 ): data is BroadcastPaymentData =>
@@ -46,7 +69,10 @@ export const is_broadcast_store_payment_data = (
 
 type CallBack = (
   status: "sucess" | "failed",
-  data: BroadcastPaymentData | BroadcastStorePaymentData,
+  data:
+    | BroadcastPaymentData
+    | BroadcastStorePaymentData
+    | BroadcastStoreCreateSaleData,
 ) => void;
 
 export type EmitEvent = "sale_created" | "customer_created";
