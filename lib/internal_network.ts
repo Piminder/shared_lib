@@ -190,6 +190,9 @@ export default class InternalServiceNetwork {
     this.test_deposit = this.test_deposit.bind(this);
 
     this.dispose_notification_file = this.dispose_notification_file.bind(this);
+
+    this.create_transaction_client = this.create_transaction_client.bind(this);
+    this.purchase = this.purchase.bind(this);
   }
 
   public async send_recovery_password_mail(
@@ -519,6 +522,86 @@ export default class InternalServiceNetwork {
     } catch (error: any) {
       console.log(`Unexpected error: ${error.response.data.message}`);
       return Result.failure(error.response.data.message);
+    }
+  }
+
+  /*
+
+
+
+  this.handler.post(
+    "/internal/store/purchase",
+    this.store_controller.create_purchase,
+  );
+  */
+
+  public async create_transaction_client({
+    email,
+    phone,
+    corporate_customer_reference,
+  }: any): Promise<Result<string>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const r = await axios.post(
+        host({
+          SERVICE: SERVICE.PRODUCT,
+          PATH: "v1/api/product/internal/store/transaction_customer",
+        }),
+        {
+          email,
+          phone,
+          corporate_customer_reference,
+        },
+        {
+          headers,
+        },
+      );
+
+      if (r.status !== 200)
+        return Result.failure(GenericError.unexpected_error______);
+
+      return Result.success(r.data.message);
+    } catch (error) {
+      return Result.failure(GenericError.unexpected_error______);
+    }
+  }
+
+  public async purchase({
+    product_id,
+    customer_id,
+    value,
+    transaction_reference,
+  }: any): Promise<Result<string>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const r = await axios.post(
+        host({
+          SERVICE: SERVICE.PRODUCT,
+          PATH: "v1/api/product/internal/store/purchase",
+        }),
+        {
+          product_id: product_id,
+          customer_id: customer_id,
+          value: value,
+          transaction_reference: transaction_reference,
+        },
+        {
+          headers,
+        },
+      );
+
+      if (r.status !== 200)
+        return Result.failure(GenericError.unexpected_error______);
+
+      return Result.success(r.data.message);
+    } catch (error) {
+      return Result.failure(GenericError.unexpected_error______);
     }
   }
 
