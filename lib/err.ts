@@ -4,6 +4,7 @@ const GenericError = {
   generic_error_________: "E-501",
 
   company_not_found_____: "E-000",
+  nuib_already_exists___: "E-007",
   company_without_credit: "E-008",
   wrong_credentials_____: "E-009",
   email_already_exists__: "E-010",
