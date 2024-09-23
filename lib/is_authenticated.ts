@@ -30,8 +30,15 @@ export default function is_authenticated(
     req.company_id = sub;
 
     return next();
-  } catch (err) {
+  } catch (err: any) {
     console.error(`Is authenticated error: ${err}`);
+
+    if (err.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ message: GenericError.expired_token_________ });
+    }
+
     return res
       .status(401)
       .json({ message: GenericError.invalid_token_________ });
