@@ -28,7 +28,7 @@ const GenericError = {
 
   invalid_payload_______: "E-027", // payload invalido
   invalid_payload_fragment: "E-028", // uma parte do payload é invalida ou não existe
-  not_before_token______: "E-29", // o token foi usado antes de sua data de validade (nbf).
+  not_before_token______: "E-029", // o token foi usado antes de sua data de validade (nbf).
   resource_unavailable__: "E-100",
 };
 
