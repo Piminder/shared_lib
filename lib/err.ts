@@ -14,13 +14,12 @@ const GenericError = {
   invalid_token_________: "E-014",
   expired_token_________: "E-015",
   disabled_account______: "E-016",
+  it_was_impossible_to_send_otp: "E-017",
   data_not_found________: "E-018",
+  company_has_already_been_verified: "E-019",
   invalid_data__________: "E-020",
   feat_not_implemented__: "E-021",
   client_duplicate_data_: "E-022", // Se o client passado, tem os mesmos dados a nivel de email, phone e nuit.
-
-  it_was_impossible_to_send_otp: "E-017",
-  company_has_already_been_verified: "E-019",
 
   insufficient_balance__: "E-023", // "Saldo insuficiente para esta operação. O saldo não deve ser inferior a -90."
   insufficient_balance_short: "E-024", // "Erro: Saldo insuficiente para esta operação"
@@ -29,7 +28,7 @@ const GenericError = {
 
   invalid_payload_______: "E-027", // payload invalido
   invalid_payload_fragment: "E-028", // uma parte do payload é invalida ou não existe
-
+  not_before_token______: "E-29", // o token foi usado antes de sua data de validade (nbf).
   resource_unavailable__: "E-100",
 };
 

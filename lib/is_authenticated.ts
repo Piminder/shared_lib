@@ -39,8 +39,20 @@ export default function is_authenticated(
         .json({ message: GenericError.expired_token_________ });
     }
 
+    if (err.name === "JsonWebTokenError") {
+      return res
+        .status(401)
+        .json({ message: GenericError.invalid_token_________ });
+    }
+
+    if (err.name === "NotBeforeError") {
+      return res
+        .status(401)
+        .json({ message: GenericError.not_before_token______ });
+    }
+
     return res
       .status(401)
-      .json({ message: GenericError.invalid_token_________ });
+      .json({ message: GenericError.unexpected_error______ });
   }
 }
