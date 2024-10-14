@@ -32,6 +32,8 @@ const GenericError = {
 
     user_already_exists___: "E-030",
 
+    already_logged_in_____: "E-031",
+
     resource_unavailable__: "E-100",
 };
 
