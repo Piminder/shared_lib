@@ -211,7 +211,7 @@ export default class InternalServiceNetwork {
         this.purchase = this.purchase.bind(this);
     }
 
-    public async get_public_product(id: string): Promise<Result<IProductMessage>> {
+    public async get_public_product(id: string): Promise<Result<IPublicProductMessage>> {
         const headers = {
             "Content-Type": "application/json",
         };
