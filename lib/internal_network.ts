@@ -232,7 +232,8 @@ export default class InternalServiceNetwork {
             const data: IPublicProductResponse = r.data;
             return Result.success(data.message as IPublicProductMessage);
         } catch (error: any) {
-            console.log(`Unexpected error: ${error.response.data.message}`);
+            console.error(`1. Error when geting a public product: ${error.response.data.message}`);
+            console.error(`2. Error when geting a public product: ${error}`);
             return Result.failure(error.response.data.message);
         }
     }
