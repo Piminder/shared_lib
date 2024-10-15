@@ -209,9 +209,10 @@ export default class InternalServiceNetwork {
 
         this.create_transaction_client = this.create_transaction_client.bind(this);
         this.purchase = this.purchase.bind(this);
+        this.get_public_product_byref = this.get_public_product_byref.bind(this);
     }
 
-    public async get_public_product(id: string): Promise<Result<IPublicProductMessage>> {
+    public async get_public_product_byref(id: string): Promise<Result<IPublicProductMessage>> {
         const headers = {
             "Content-Type": "application/json",
         };
@@ -220,7 +221,7 @@ export default class InternalServiceNetwork {
             const r = await axios.get(
                 host({
                     SERVICE: SERVICE.PRODUCT,
-                    PATH: `/store/product?id=${id}`,
+                    PATH: `/store/product-byref?id=${id}`,
                 }),
                 {
                     headers,
