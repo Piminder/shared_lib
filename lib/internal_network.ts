@@ -222,7 +222,7 @@ export default class InternalServiceNetwork {
             const r = await axios.get(
                 host({
                     SERVICE: SERVICE.PRODUCT,
-                    PATH: `/store/product-byref?id=${id}`,
+                    PATH: `v1/api/product/store/product-byref?id=${id}`,
                 }),
                 {
                     headers,
