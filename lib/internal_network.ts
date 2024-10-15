@@ -27,7 +27,8 @@ export interface IPublicProductMessage {
     parcel: number;
     description: string;
     price: number;
-    custom_fields: Map<string, string>;
+    custom_fields: any;
+    company_reference: any;
     object_reference: string;
     is_mixed: boolean;
     installment_reference: string | null;
