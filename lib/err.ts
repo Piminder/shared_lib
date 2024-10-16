@@ -34,6 +34,8 @@ const GenericError = {
 
     already_logged_in_____: "E-031",
 
+    operation_cannot_be_completed: "E-032", // o pedido foi entendido, mas por algum motivo ela não pode ser processada.
+
     resource_unavailable__: "E-100",
 };
 
