@@ -36,6 +36,8 @@ const GenericError = {
 
     operation_cannot_be_completed: "E-032", // o pedido foi entendido, mas por algum motivo ela não pode ser processada.
 
+    active_session_found__: "E-033",
+
     resource_unavailable__: "E-100",
 };
 
