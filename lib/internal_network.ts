@@ -538,16 +538,6 @@ export default class InternalServiceNetwork {
         }
     }
 
-    /*
-
-
-
-  this.handler.post(
-    "/internal/store/purchase",
-    this.store_controller.create_purchase,
-  );
-  */
-
     public async create_transaction_client({ email, phone, corporate_customer_reference }: any): Promise<Result<string>> {
         const headers = {
             "Content-Type": "application/json",
