@@ -20,6 +20,7 @@ export interface BroadcastStorePaymentData {
     transaction_reference: string;
     message: string;
     is_free_sale: boolean;
+    amount: number;
 }
 
 export interface BroadcastStoreCreateSaleData {
@@ -63,6 +64,7 @@ export const is_broadcast_store_payment_data = (data: any): data is BroadcastSto
         transaction_reference: "string",
         message: "string",
         is_free_sale: "boolean",
+        amount: "number",
     });
 
 type CallBack = (status: "sucess" | "failed", data: BroadcastPaymentData | BroadcastStorePaymentData | BroadcastStoreCreateSaleData) => void;
