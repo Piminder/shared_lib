@@ -306,6 +306,7 @@ export default class InternalServiceNetwork {
     public async send_any_sms_message(message: string, tel: string): Promise<Result<undefined>> {
         const headers = {
             "Content-Type": "application/json",
+            Authorization: this.auth_token,
         };
 
         const request_data = {
@@ -701,7 +702,7 @@ export default class InternalServiceNetwork {
     public async send_sms_notification(args: ISMSNotificationArgs): Promise<Result<boolean>> {
         const headers = {
             "Content-Type": "application/json",
-            // Authorization: this.auth_token,
+            Authorization: this.auth_token,
         };
 
         const request_data = {
