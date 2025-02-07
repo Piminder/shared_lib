@@ -1,23 +1,26 @@
 enum SERVICE {
-	AUTHENTICATIOIN = "auth",
-	PRODUCT = "product",
-	NOTIFICATION = "notification",
-	CREDIT = "credit",
+    AUTHENTICATIOIN = "auth",
+    PRODUCT = "product",
+    NOTIFICATION = "notification",
+    CREDIT = "credit",
+    INVOICE = "invoice",
 }
 
 interface HOST {
-	SERVICE: SERVICE;
-	PATH: string;
+    SERVICE: SERVICE;
+    PATH: string;
 }
 
 function host({ SERVICE, PATH }: HOST): string {
-	let p = 0;
-	if (SERVICE === "auth") p = 3000;
-	else if (SERVICE === "credit") p = 3002;
-	else if (SERVICE === "product") p = 3003;
-	else if (SERVICE === "notification") p = 3004;
+    let port = 8080;
 
-	return `http://${SERVICE}:${p}/${PATH}`;
+    if ("auth" === SERVICE) port = 3000;
+    else if ("invoice" === SERVICE) port = 3001;
+    else if ("credit" === SERVICE) port = 3002;
+    else if ("product" === SERVICE) port = 3003;
+    else if ("notification" === SERVICE) port = 3004;
+
+    return `http://${SERVICE}:${port}/${PATH}`;
 }
 
 export { host, SERVICE, type HOST };
