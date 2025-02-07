@@ -891,4 +891,30 @@ export default class InternalServiceNetwork {
             return Result.failure(error.response.data.message);
         }
     }
+
+    public async delete_internal_cus_in_invoice_db(cus_id: string): Promise<Result<void>> {
+        const headers = {
+            "Content-Type": "application/json",
+            Authorization: this.auth_token,
+        };
+
+        try {
+            const r = await axios.delete(
+                host({
+                    SERVICE: SERVICE.INVOICE,
+                    PATH: `v1/api/inv/internal/customer/${cus_id}`,
+                }),
+                {
+                    headers,
+                },
+            );
+
+            if (r.status !== 204) return Result.failure(GenericError.unexpected_error______);
+
+            return Result.success(void 0);
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        } catch (error: any) {
+            return Result.failure(error.response.data.message);
+        }
+    }
 }
