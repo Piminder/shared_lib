@@ -14,6 +14,10 @@ import Result from "./result";
 import GenericError from "./err";
 import { host, SERVICE } from "./cc_conf";
 
+export interface ICustomerByGroupID {
+    id: string;
+}
+
 export interface IPublicProductResponse {
     message: IPublicProductMessage;
 }
@@ -213,6 +217,36 @@ export default class InternalServiceNetwork {
         this.get_public_product_byref = this.get_public_product_byref.bind(this);
     }
 
+    public async get_customer_by_group_in_invoice_db(group_id: string): Promise<Result<ICustomerByGroupID[]>> {
+        const headers = {
+            "Content-Type": "application/json",
+            Authorization: this.auth_token,
+        };
+
+        try {
+            const r = await axios.get(
+                host({
+                    SERVICE: SERVICE.INVOICE,
+                    PATH: `v1/api/inv/group/${group_id}/customers`,
+                }),
+                {
+                    headers,
+                },
+            );
+
+            if (r.status !== 200) return Result.failure(GenericError.unexpected_error______);
+
+            const data = r.data.message as string[];
+            const cus: ICustomerByGroupID[] = [];
+            data.forEach((value: string, index: number) => cus.push({ id: value }));
+
+            return Result.success(cus);
+        } catch (error: any) {
+            console.error(`1. Error when geting a customer by group: ${error.response.data.message}`);
+            console.error(`2. Error when geting a customer by group: ${error}`);
+            return Result.failure(error.response.data.message);
+        }
+    }
     public async get_public_product_byref(id: string): Promise<Result<IPublicProductMessage>> {
         const headers = {
             "Content-Type": "application/json",
