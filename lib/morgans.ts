@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 
-enum NewsType {
+export enum NewsType {
   log,
   warning,
   err,
