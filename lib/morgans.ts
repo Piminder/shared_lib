@@ -1,5 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
 
+enum NewsType {
+  log,
+  warning,
+  err,
+  info,
+}
+
 /**
  * Classe Morgans responsável por registrar logs detalhados de requisições HTTP.
  * O nome 'Morgans' é uma referência a um personagem de 'One Piece'.
@@ -19,37 +26,64 @@ class Morgans {
     next: NextFunction,
   ): void {
     const start = Date.now();
-    const startTime = new Date(start).toISOString();
 
-    console.log(
-      `[${startTime}] Início da requisição: ${req.method} ${req.url}`,
+    Morgans.publish(
+      `Início da requisição: ${req.method} ${req.url}`,
+      NewsType.info,
     );
 
     res.on("finish", () => {
       const duration = Date.now() - start;
-      const endTime = new Date().toISOString();
-      console.log(
-        `[${endTime}] Término da requisição: ${req.method} ${req.url} - Status: ${res.statusCode} - Tempo: ${duration}ms`,
+      Morgans.publish(
+        `Request end: ${req.method} ${req.url} - Status: ${res.statusCode} - Time: ${duration}ms`,
+        NewsType.info,
       );
     });
 
     res.on("close", () => {
       const duration = Date.now() - start;
-      const closeTime = new Date().toISOString();
-      console.error(
-        `[${closeTime}] Requisição fechada prematuramente: ${req.method} ${req.url} - Status: ${res.statusCode} - Tempo: ${duration}ms`,
+      Morgans.publish(
+        `Request closed prematurely: ${req.method} ${req.url} - Status: ${res.statusCode} - Time: ${duration}ms`,
+        NewsType.warning,
       );
     });
 
     res.on("error", (err) => {
       const duration = Date.now() - start;
-      const errorTime = new Date().toISOString();
-      console.error(
-        `[${errorTime}] Erro na requisição: ${req.method} ${req.url} - Status: ${res.statusCode} - Tempo: ${duration}ms - Erro: ${err.message}`,
+      Morgans.publish(
+        `Error in request: ${req.method} ${req.url} - Status: ${res.statusCode} - Time: ${duration}ms - Error: ${err.message}`,
+        NewsType.err,
       );
     });
 
     next();
+  }
+
+  /**
+   * Publica logs formatados no console com diferentes níveis de severidade.
+   *
+   * @param msg - A mensagem a ser exibida no log.
+   * @param type - O tipo de log (log, warning, err, info).
+   */
+  public static publish(msg: string, type: NewsType = NewsType.log) {
+    const now = new Date();
+    const date = now.toLocaleDateString("pt-BR");
+    const time = now.toLocaleTimeString("pt-BR", { hour12: false });
+    const prefix = `===== [${date}] [${time}] |`;
+
+    switch (type) {
+      case NewsType.info:
+        console.info(`${prefix} INFO: ${msg} =====`);
+        break;
+      case NewsType.warning:
+        console.warn(`${prefix} WARNING: ${msg} =====`);
+        break;
+      case NewsType.err:
+        console.error(`${prefix} ERROR: ${msg} =====`);
+        break;
+      default:
+        console.log(`${prefix} LOG: ${msg} =====`);
+    }
   }
 }
 
