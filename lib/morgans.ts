@@ -69,20 +69,20 @@ class Morgans {
     const now = new Date();
     const date = now.toLocaleDateString("pt-BR");
     const time = now.toLocaleTimeString("pt-BR", { hour12: false });
-    const prefix = `===== [${date}] [${time}] |`;
+    const prefix = `[${date}] [${time}] |`;
 
     switch (type) {
       case NewsType.info:
-        console.info(`${prefix} INFO: ${msg} =====`);
+        console.info(`${prefix} INFO: ${msg}`);
         break;
       case NewsType.warning:
-        console.warn(`${prefix} WARNING: ${msg} =====`);
+        console.warn(`${prefix} WARNING: ${msg}`);
         break;
       case NewsType.err:
-        console.error(`${prefix} ERROR: ${msg} =====`);
+        console.error(`${prefix} ERROR: ${msg}`);
         break;
       default:
-        console.log(`${prefix} LOG: ${msg} =====`);
+        console.log(`${prefix} LOG: ${msg}`);
     }
   }
 }
