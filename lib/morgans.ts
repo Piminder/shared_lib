@@ -148,19 +148,19 @@ export default class MorgansWrapper {
 		MorgansWrapper._.big_news(req, res, next);
 	}
 
-	public static log(msg: string) {
-		MorgansWrapper._.publish(msg, NewsType.log);
+	public static log(msg: string, body: Record<string, unknown> = {}) {
+		MorgansWrapper._.publish(msg, NewsType.log, body);
 	}
 
-	public static err(msg: string) {
-		MorgansWrapper._.publish(msg, NewsType.err);
+	public static err(msg: string, body: Record<string, unknown> = {}) {
+		MorgansWrapper._.publish(msg, NewsType.err, body);
 	}
 
-	public static warn(msg: string) {
-		MorgansWrapper._.publish(msg, NewsType.warning);
+	public static warn(msg: string, body: Record<string, unknown> = {}) {
+		MorgansWrapper._.publish(msg, NewsType.warning, body);
 	}
 
-	public static info(msg: string) {
-		MorgansWrapper._.publish(msg, NewsType.info);
+	public static info(msg: string, body: Record<string, unknown> = {}) {
+		MorgansWrapper._.publish(msg, NewsType.info, body);
 	}
 }
