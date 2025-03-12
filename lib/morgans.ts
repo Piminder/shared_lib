@@ -70,7 +70,7 @@ class Morgans {
 		const start = Date.now();
 
 		this.publish(
-			`Início da requisição: ${req.method} ${req.url}`,
+			`Início da requisição: (${req.method} ${req.url})`,
 			NewsType.info,
 		);
 
@@ -106,7 +106,7 @@ class Morgans {
 		res.on("error", (err: Error) => {
 			const duration = Date.now() - start;
 			this.publish(
-				`Error in request: ${req.method} ${req.url} - Status: ${res.statusCode} - Time: ${duration}ms - Error: ${err.message}`,
+				`Error in request (${req.method} ${req.url}). - Status: ${res.statusCode} - Time: ${duration}ms - Error: ${err.message}`,
 				NewsType.err,
 			);
 		});
