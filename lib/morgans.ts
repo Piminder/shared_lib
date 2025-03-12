@@ -39,7 +39,10 @@ class Morgans {
                     ...params,
                     serviceId: this.key,
                     timestamp: new Date().toISOString(),
-                    body: JSON.stringify(params.body),
+                    body:
+                        typeof params.body === "object"
+                            ? JSON.stringify(params.body)
+                            : JSON.stringify({ err: params.body }),
                 }),
             });
 
