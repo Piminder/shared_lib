@@ -12,7 +12,7 @@ enum NewsType {
 interface LogParams {
     message: string;
     level: "DEBUG" | "INFO" | "WARN" | "ERROR";
-    body: Record<string, unknown>;
+    body: Record<string, unknown> | unknown;
 }
 
 /**
@@ -107,7 +107,7 @@ class Morgans {
     public publish(
         msg: string,
         type: NewsType = NewsType.log,
-        body: Record<string, unknown> = {},
+        body: Record<string, unknown> | unknown = {},
     ) {
         const now = new Date();
         const date = now.toLocaleDateString("pt-BR");
@@ -148,19 +148,31 @@ export default class MorgansWrapper {
         MorgansWrapper._.big_news(req, res, next);
     }
 
-    public static log(msg: string, body: Record<string, unknown> = {}) {
+    public static log(
+        msg: string,
+        body: Record<string, unknown> | unknown = {},
+    ) {
         MorgansWrapper._.publish(msg, NewsType.log, body);
     }
 
-    public static err(msg: string, body: Record<string, unknown> = {}) {
+    public static err(
+        msg: string,
+        body: Record<string, unknown> | unknown = {},
+    ) {
         MorgansWrapper._.publish(msg, NewsType.err, body);
     }
 
-    public static warn(msg: string, body: Record<string, unknown> = {}) {
+    public static warn(
+        msg: string,
+        body: Record<string, unknown> | unknown = {},
+    ) {
         MorgansWrapper._.publish(msg, NewsType.warning, body);
     }
 
-    public static info(msg: string, body: Record<string, unknown> = {}) {
+    public static info(
+        msg: string,
+        body: Record<string, unknown> | unknown = {},
+    ) {
         MorgansWrapper._.publish(msg, NewsType.info, body);
     }
 }
