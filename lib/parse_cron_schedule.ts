@@ -131,7 +131,7 @@ export function parse_schedule(schedule: ScheduleType | string): string | null {
   // Enum padrão
   switch (schedule) {
     case ScheduleType.OnceADay:
-      return "0 9 * * *";
+      return "0 8 * * *";
     case ScheduleType.EveryHour:
       return "0 * * * *";
     case ScheduleType.OnceAWeek:
