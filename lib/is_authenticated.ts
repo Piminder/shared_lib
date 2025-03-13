@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import jsonwebtoken from "jsonwebtoken";
 import GenericError from "./err";
+import MorgansWrapper from "./morgans";
 
 export interface Payload {
   sub: string;
@@ -31,7 +32,7 @@ export default function is_authenticated(
 
     return next();
   } catch (err: any) {
-    console.error(`Is authenticated error: ${err}`);
+    MorgansWrapper.err(`Is authenticated error: ${err}`);
 
     if (err.name === "TokenExpiredError") {
       return res

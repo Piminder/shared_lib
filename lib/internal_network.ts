@@ -13,6 +13,7 @@ import axios from "axios";
 import Result from "./result";
 import GenericError from "./err";
 import { host, SERVICE } from "./cc_conf";
+import MorgansWrapper from "./morgans";
 
 export interface ICustomerByGroupID {
   id: string;
@@ -243,10 +244,10 @@ export default class InternalServiceNetwork {
 
       return Result.success(r.data.message);
     } catch (err: any) {
-      console.error(
+      MorgansWrapper.err(
         `1. Error when geting installment to notify: ${err.response.data.message}`,
       );
-      console.error(`2. Error when geting installments to notify: ${err}`);
+      MorgansWrapper.err(`2. Error when geting installments to notify: ${err}`);
       return Result.failure(err.response.data.message);
     }
   }
@@ -279,10 +280,10 @@ export default class InternalServiceNetwork {
 
       return Result.success(cus);
     } catch (error: any) {
-      console.error(
+      MorgansWrapper.err(
         `1. Error when geting a customer by group: ${error.response.data.message}`,
       );
-      console.error(`2. Error when geting a customer by group: ${error}`);
+      MorgansWrapper.err(`2. Error when geting a customer by group: ${error}`);
       return Result.failure(error.response.data.message);
     }
   }
@@ -310,10 +311,10 @@ export default class InternalServiceNetwork {
       const data: IPublicProductResponse = r.data;
       return Result.success(data.message as IPublicProductMessage);
     } catch (error: any) {
-      console.error(
+      MorgansWrapper.err(
         `1. Error when geting a public product: ${error.response.data.message}`,
       );
-      console.error(`2. Error when geting a public product: ${error}`);
+      MorgansWrapper.err(`2. Error when geting a public product: ${error}`);
       return Result.failure(error.response.data.message);
     }
   }
@@ -482,7 +483,7 @@ export default class InternalServiceNetwork {
       const data: ICompanyResponse = r.data;
       return Result.success(data.message as ICompany);
     } catch (error: any) {
-      console.log(`Unexpected error: ${error.response.data.message}`);
+      MorgansWrapper.log(`Unexpected error: ${error.response.data.message}`);
       return Result.failure(error.response.data.message);
     }
   }
@@ -636,7 +637,7 @@ export default class InternalServiceNetwork {
       );
 
       if (auth_response.status !== 200) {
-        console.log(`HTTP error: ${auth_response.data.message}`);
+        MorgansWrapper.log(`HTTP error: ${auth_response.data.message}`);
         return Result.failure(auth_response.data.message);
       }
 
@@ -644,7 +645,7 @@ export default class InternalServiceNetwork {
       return Result.success(res.message as ICustomerMessage);
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (error: any) {
-      console.log(`Unexpected error: ${error.response.data.message}`);
+      MorgansWrapper.log(`Unexpected error: ${error.response.data.message}`);
       return Result.failure(error.response.data.message);
     }
   }
