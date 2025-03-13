@@ -1,9 +1,9 @@
 export enum ScheduleType {
-    OnceADay = "once a day",
-    EveryHour = "every hour",
-    OnceAWeek = "once a week",
-    OnceAMonth = "once a month",
-    OnceAYear = "once a year",
+  OnceADay = "once a day",
+  EveryHour = "every hour",
+  OnceAWeek = "once a week",
+  OnceAMonth = "once a month",
+  OnceAYear = "once a year",
 }
 
 /**
@@ -128,66 +128,68 @@ export enum ScheduleType {
   ```
 */
 export function parse_schedule(schedule: ScheduleType | string): string | null {
-    // Enum padrão
-    switch (schedule) {
-        case ScheduleType.OnceADay:
-            return "0 8 * * *";
-        case ScheduleType.EveryHour:
-            return "0 * * * *";
-        case ScheduleType.OnceAWeek:
-            return "0 8 * * 1";
-        case ScheduleType.OnceAMonth:
-            return "0 8 1 * *";
-        case ScheduleType.OnceAYear:
-            return "0 8 1 1 *";
-    }
+  // Enum padrão
+  switch (schedule) {
+    case ScheduleType.OnceADay:
+      return "0 9 * * *";
+    case ScheduleType.EveryHour:
+      return "0 * * * *";
+    case ScheduleType.OnceAWeek:
+      return "0 8 * * 1";
+    case ScheduleType.OnceAMonth:
+      return "0 8 1 * *";
+    case ScheduleType.OnceAYear:
+      return "0 8 1 1 *";
+  }
 
-    // Match para intervalos personalizados
-    const minutesMatch = schedule.match(/^every (\d+) minutes?$/);
-    if (minutesMatch) {
-        const minutes = Number.parseInt(minutesMatch[1], 10);
-        if (minutes >= 1 && minutes <= 59) return `*/${minutes} * * * *`;
-    }
+  // Match para intervalos personalizados
+  const minutesMatch = schedule.match(/^every (\d+) minutes?$/);
+  if (minutesMatch) {
+    const minutes = Number.parseInt(minutesMatch[1], 10);
+    if (minutes >= 1 && minutes <= 59) return `*/${minutes} * * * *`;
+  }
 
-    const secondsMatch = schedule.match(/^every (\d+) seconds?$/);
-    if (secondsMatch) {
-        const seconds = Number.parseInt(secondsMatch[1], 10);
-        if (seconds >= 1 && seconds <= 59) return `*/${seconds} * * * * *`;
-    }
+  const secondsMatch = schedule.match(/^every (\d+) seconds?$/);
+  if (secondsMatch) {
+    const seconds = Number.parseInt(secondsMatch[1], 10);
+    if (seconds >= 1 && seconds <= 59) return `*/${seconds} * * * * *`;
+  }
 
-    const hourlyMatch = schedule.match(/^every (\d+) hours?$/);
-    if (hourlyMatch) {
-        const hours = Number.parseInt(hourlyMatch[1], 10);
-        if (hours >= 1 && hours <= 23) return `0 */${hours} * * *`;
-    }
+  const hourlyMatch = schedule.match(/^every (\d+) hours?$/);
+  if (hourlyMatch) {
+    const hours = Number.parseInt(hourlyMatch[1], 10);
+    if (hours >= 1 && hours <= 23) return `0 */${hours} * * *`;
+  }
 
-    const dailyMatch = schedule.match(/^every (\d+) days?$/);
-    if (dailyMatch) {
-        const days = Number.parseInt(dailyMatch[1], 10);
-        if (days >= 1 && days <= 31) return `0 8 */${days} * *`;
-    }
+  const dailyMatch = schedule.match(/^every (\d+) days?$/);
+  if (dailyMatch) {
+    const days = Number.parseInt(dailyMatch[1], 10);
+    if (days >= 1 && days <= 31) return `0 8 */${days} * *`;
+  }
 
-    const weeklyMatch = schedule.match(/^every (\d+) weeks?$/);
-    if (weeklyMatch) {
-        const weeks = Number.parseInt(weeklyMatch[1], 10);
-        if (weeks >= 1 && weeks <= 4) return `0 8 * * ${weeks * 7}`;
-    }
+  const weeklyMatch = schedule.match(/^every (\d+) weeks?$/);
+  if (weeklyMatch) {
+    const weeks = Number.parseInt(weeklyMatch[1], 10);
+    if (weeks >= 1 && weeks <= 4) return `0 8 * * ${weeks * 7}`;
+  }
 
-    const monthlyMatch = schedule.match(/^every (\d+) months?$/);
-    if (monthlyMatch) {
-        const months = Number.parseInt(monthlyMatch[1], 10);
-        if (months >= 1 && months <= 12) return `0 8 1 */${months} *`;
-    }
+  const monthlyMatch = schedule.match(/^every (\d+) months?$/);
+  if (monthlyMatch) {
+    const months = Number.parseInt(monthlyMatch[1], 10);
+    if (months >= 1 && months <= 12) return `0 8 1 */${months} *`;
+  }
 
-    const timeRangeMatch = schedule.match(/^every (\d+) hours? from (\d{1,2}) to (\d{1,2})$/);
-    if (timeRangeMatch) {
-        const hours = Number.parseInt(timeRangeMatch[1], 10);
-        const start = Number.parseInt(timeRangeMatch[2], 10);
-        const end = Number.parseInt(timeRangeMatch[3], 10);
-        if (hours >= 1 && hours <= 23 && start >= 0 && end <= 23 && start < end) {
-            return `${start} */${hours} ${end} * * *`;
-        }
+  const timeRangeMatch = schedule.match(
+    /^every (\d+) hours? from (\d{1,2}) to (\d{1,2})$/,
+  );
+  if (timeRangeMatch) {
+    const hours = Number.parseInt(timeRangeMatch[1], 10);
+    const start = Number.parseInt(timeRangeMatch[2], 10);
+    const end = Number.parseInt(timeRangeMatch[3], 10);
+    if (hours >= 1 && hours <= 23 && start >= 0 && end <= 23 && start < end) {
+      return `${start} */${hours} ${end} * * *`;
     }
+  }
 
-    return null;
+  return null;
 }
