@@ -240,7 +240,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.get(
+      const r = await axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/auth/pass_autogen",
@@ -255,10 +255,10 @@ export default class InternalServiceNetwork {
       return Result.success(r.data.message);
     } catch (err: any) {
       MorgansWrapper.err(
-        `Error send autogen password to ${email}: ${err.response.data.message}`,
+        `Error send autogen password to ${email}: ${err.response.data.error}`,
       );
       MorgansWrapper.err(`Error send autogen password to ${email}: ${err}`);
-      return Result.failure(err.response.data.message);
+      return Result.failure(err.response.data.error);
     }
   }
 
