@@ -222,6 +222,44 @@ export default class InternalServiceNetwork {
     this.purchase = this.purchase.bind(this);
     this.get_public_product_byref = this.get_public_product_byref.bind(this);
     this.get_installment_to_notify = this.get_installment_to_notify.bind(this);
+    this.send_self_generated_password_email =
+      this.send_self_generated_password_email.bind(this);
+  }
+
+  public async send_self_generated_password_email({
+    email,
+    password,
+    company_name,
+  }: {
+    email: string;
+    password: string;
+    company_name: string;
+  }): Promise<Result<any>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const r = await axios.get(
+        host({
+          SERVICE: SERVICE.NOTIFICATION,
+          PATH: "v1/api/notification/auth/pass_autogen",
+        }),
+        {
+          headers,
+        },
+      );
+
+      if (r.status !== 200) return Result.failure(r.data.message);
+
+      return Result.success(r.data.message);
+    } catch (err: any) {
+      MorgansWrapper.err(
+        `Error send autogen password to ${email}: ${err.response.data.message}`,
+      );
+      MorgansWrapper.err(`Error send autogen password to ${email}: ${err}`);
+      return Result.failure(err.response.data.message);
+    }
   }
 
   public async get_installment_to_notify(): Promise<Result<unknown[]>> {
