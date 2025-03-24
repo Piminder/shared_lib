@@ -240,11 +240,18 @@ export default class InternalServiceNetwork {
     };
 
     try {
+      const request_data = {
+        email: email,
+        password: password,
+        company_name: company_name,
+      };
+
       const r = await axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/auth/pass_autogen",
         }),
+        request_data,
         {
           headers,
         },
