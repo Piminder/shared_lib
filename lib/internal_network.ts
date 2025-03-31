@@ -297,6 +297,72 @@ export default class InternalServiceNetwork {
     }
   }
 
+  public async get_tax_company_status(
+    ref: string,
+  ): Promise<Result<{ ref: string; is_active: boolean; paid_until: boolean }>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const r = await axios.get(
+        host({
+          SERVICE: SERVICE.AUTHENTICATIOIN,
+          PATH: `v1/api/auth/tax_status?company_id=${ref}`,
+        }),
+        {
+          headers,
+        },
+      );
+
+      if (r.status !== 200) return Result.failure(r.data.message);
+
+      return Result.success(r.data.message);
+    } catch (err: any) {
+      MorgansWrapper.err(
+        `1. Error when geting tax status: ${err.response.data.message}`,
+      );
+      return Result.failure(err.response.data.message);
+    }
+  }
+
+  public async pay_subscription(
+    ref: string,
+    months: number,
+  ): Promise<Result<boolean>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    const request_data = {
+      ref: ref,
+      months: months,
+    };
+
+    try {
+      const notify_response = await axios.post(
+        host({
+          SERVICE: SERVICE.AUTHENTICATIOIN,
+          PATH: "v1/api/auth/pay_subscription",
+        }),
+        request_data,
+        {
+          headers,
+        },
+      );
+
+      if (notify_response.status !== 200)
+        return Result.failure(GenericError.unexpected_error______);
+
+      return Result.success(true);
+    } catch (err: any) {
+      MorgansWrapper.err(
+        `1. Error pay subscription tax: ${err.response.data.message}`,
+      );
+      return Result.failure(err.response.data.message);
+    }
+  }
+
   public async get_customer_by_group_in_invoice_db(
     group_id: string,
   ): Promise<Result<ICustomerByGroupID[]>> {
