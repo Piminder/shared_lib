@@ -37,6 +37,7 @@ export interface BroadcastStoreCreateSaleData {
 export interface BloadcastAnnuityPayment {
   gref: string;
   months: number;
+  message: string;
 }
 
 export const is_broadcast_annuity_payment = (
@@ -45,6 +46,7 @@ export const is_broadcast_annuity_payment = (
   is_of_type<BloadcastAnnuityPayment>(data, {
     gref: "string",
     months: "number",
+    message: "string",
   });
 
 export const is_broadcast_store_create_sale_data = (
@@ -92,7 +94,8 @@ type CallBack = (
   data:
     | BroadcastPaymentData
     | BroadcastStorePaymentData
-    | BroadcastStoreCreateSaleData,
+    | BroadcastStoreCreateSaleData
+    | BloadcastAnnuityPayment,
 ) => void;
 
 export type EmitEvent = "sale_created" | "customer_created";
@@ -113,6 +116,14 @@ export default class Listener {
 
   public on(callback: CallBack) {
     // events
+    this.io.on("annuity_payment_success", (data: BloadcastAnnuityPayment) => {
+      callback("sucess", data);
+    });
+
+    this.io.on("annuity_payment_failure", (data: BloadcastAnnuityPayment) => {
+      callback("failed", data);
+    });
+
     this.io.on("payment_success", (data: BroadcastPaymentData) => {
       callback("sucess", data);
     });
