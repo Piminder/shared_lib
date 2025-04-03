@@ -34,6 +34,19 @@ export interface BroadcastStoreCreateSaleData {
   message: string;
 }
 
+export interface BloadcastAnnuityPayment {
+  gref: string;
+  months: number;
+}
+
+export const is_broadcast_annuity_payment = (
+  data: any,
+): data is BloadcastAnnuityPayment =>
+  is_of_type<BloadcastAnnuityPayment>(data, {
+    gref: "string",
+    months: "number",
+  });
+
 export const is_broadcast_store_create_sale_data = (
   data: any,
 ): data is BroadcastStoreCreateSaleData =>
