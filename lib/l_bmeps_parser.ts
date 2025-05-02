@@ -29,7 +29,14 @@ function parse_currency(s: string): number {
   return value / 100;
 }
 
-function format_date(raw: string): string {
+function format_date(raw: string, ds = "txr"): string {
+  if ("header" === ds) {
+    const year = raw.slice(4, 8);
+    const day = raw.slice(0, 2);
+    const month = raw.slice(2, 4);
+    return `${day}/${month}/${year}`;
+  }
+
   const year = raw.slice(0, 4);
   const day = raw.slice(4, 6);
   const month = raw.slice(6, 8);
@@ -54,7 +61,7 @@ export default class LParserBMEPS {
 
     return {
       entity_code: line.slice(1, 6),
-      creation_date: format_date(line.slice(6, 14)),
+      creation_date: format_date(line.slice(6, 14), "header"),
       file_id: line.slice(14, 19),
     };
   }
