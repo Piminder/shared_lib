@@ -25,13 +25,13 @@ export type LParsedFile = {
 };
 
 export default class LParserBMEPS {
-  public content: string;
+  public content: LParsedFile;
   constructor(s: string) {
-    this.content = s;
+    this.content = this.parse(s);
   }
 
-  private parse(): LParsedFile {
-    const lines = this.content.trim().split(/\r?\n/);
+  private parse(s: string): LParsedFile {
+    const lines = s.trim().split(/\r?\n/);
 
     // validar se o ficheiro está vazio ou contém infos de cabeçalho e rodapé.
     if (lines.length < 2) {
