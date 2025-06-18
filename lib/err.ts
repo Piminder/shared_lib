@@ -38,7 +38,8 @@ const GenericError = {
 
   active_session_found__: "E-033",
   ope_already_completed_: "E-034", // A operação solicitada já foi concluída com sucesso anteriormente e não pode ser repetida (ex: solicitação de pagamento de uma fatura que já foi processada com sucesso. ativações, confirmações, etc.).
-
+  phone_not_found_______: "E-035", // Para operações com double check, tanto do customer e tanto de um dado secuandario, como email ou telemovel.
+  email_not_found_______: "E-036", // Para operações com double check, tanto do customer e tanto de um dado secuandario, como email ou telemovel.
   resource_unavailable__: "E-100",
 };
 
