@@ -242,7 +242,11 @@ export default class InternalServiceNetwork {
       form.append("file", fs.createReadStream(file_path));
       form.append("password", password);
 
-      const url = host({ SERVICE: SERVICE.ENCRYPTION, PATH: "api/encrypt" });
+      const url = host({
+        SERVICE: SERVICE.ENCRYPTION,
+        PATH: "api/encrypt",
+        LOCAL: false,
+      });
       const response = await axios.post(url, form, {
         headers: form.getHeaders(),
       });
@@ -260,6 +264,7 @@ export default class InternalServiceNetwork {
       const download_url = host({
         SERVICE: SERVICE.ENCRYPTION_STATIC,
         PATH: `uploads/${encrypted_file_name}`,
+        LOCAL: false,
       });
 
       const download_response = await axios.get(download_url, {
