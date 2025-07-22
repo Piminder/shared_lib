@@ -228,34 +228,42 @@ export default class InternalServiceNetwork {
     this.send_self_generated_password_email =
       this.send_self_generated_password_email.bind(this);
 
-    this.encrypt_file = this.encrypt_file.bind(this);
+    this.encrypt_and_return_stream = this.encrypt_and_return_stream.bind(this);
   }
 
-  public async encrypt_file(
+  public async encrypt_and_return_stream(
     filePath: string,
     password: string = "default_key",
-  ): Promise<Result<string>> {
+  ): Promise<Result<{ stream: NodeJS.ReadableStream; filename: string }>> {
     try {
       const form = new FormData();
       form.append("path", "/var/www/modi_six/uploads/");
       form.append("file", fs.createReadStream(filePath));
       form.append("password", password);
 
-      const url = host({ SERVICE: SERVICE.ENCRYPTION, PATH: "api/encrypt" });
-      const response = await axios.post(url, form, {
+      const encrypt_url = host({
+        SERVICE: SERVICE.ENCRYPTION,
+        PATH: "api/encrypt",
+      });
+      const response = await axios.post(encrypt_url, form, {
         headers: form.getHeaders(),
+        responseType: "json",
       });
 
       if (response.status !== 200) {
         return Result.failure("Error during encryption");
       }
 
-      const encrypted_file = response.data?.encryptedFile;
-      if (!encrypted_file) {
-        return Result.failure("No encrypted file name returned by service");
-      }
+      const encrypted_file = response.data.encryptedFile;
+      const download_url = `http://encryption:9094/uploads/${encrypted_file}`;
+      const file_response = await axios.get(download_url, {
+        responseType: "stream",
+      });
 
-      return Result.success(`/var/www/modi_six/uploads/${encrypted_file}`);
+      return Result.success({
+        stream: file_response.data,
+        filename: encrypted_file,
+      });
     } catch (err: any) {
       MorgansWrapper.err(`Encryption error: ${err.message}`);
       return Result.failure("Unexpected error during encryption");
