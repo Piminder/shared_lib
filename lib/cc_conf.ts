@@ -23,7 +23,6 @@ function host({ SERVICE, PATH, LOCAL = false }: HOST): string {
   else if ("product" === SERVICE) port = 3003;
   else if ("notification" === SERVICE) port = 3004;
   else if ("encryption" === SERVICE) port = 9094;
-  else if (SERVICE === "encryption_static") port = 9095;
 
   if (LOCAL) return `http://localhost:${port}/${PATH}`;
   return `http://${SERVICE}:${port}/${PATH}`;
