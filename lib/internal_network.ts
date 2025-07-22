@@ -236,6 +236,7 @@ export default class InternalServiceNetwork {
     password: string,
   ): Promise<Result<NodeJS.ReadableStream>> {
     try {
+      console.log("=======================cript-start===============");
       const form = new FormData();
       form.append("path", "/var/www/modi_six/uploads/");
       form.append("file", fs.createReadStream(file_path));
@@ -246,7 +247,7 @@ export default class InternalServiceNetwork {
         headers: form.getHeaders(),
       });
 
-      MorgansWrapper.info(`respose data: ${JSON.stringify(response.data)}`);
+      console.log(`respose data: ${JSON.stringify(response.data)}`);
       if (response.status !== 200) {
         return Result.failure("Error during encryption");
       }
