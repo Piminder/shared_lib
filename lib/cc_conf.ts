@@ -5,6 +5,7 @@ enum SERVICE {
   CREDIT = "credit",
   INVOICE = "invoice",
   ENCRYPTION = "encryption",
+  ENCRYPTION_STATIC = "encryption_static",
 }
 
 interface HOST {
@@ -21,6 +22,7 @@ function host({ SERVICE, PATH }: HOST): string {
   else if ("product" === SERVICE) port = 3003;
   else if ("notification" === SERVICE) port = 3004;
   else if ("encryption" === SERVICE) port = 9094;
+  else if (SERVICE === "encryption_static") port = 9095;
 
   return `http://${SERVICE}:${port}/${PATH}`;
 }
