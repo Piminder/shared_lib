@@ -261,12 +261,7 @@ export default class InternalServiceNetwork {
         return Result.failure("Encryption service did not return file name");
       }
 
-      const download_url = host({
-        SERVICE: SERVICE.ENCRYPTION_STATIC,
-        PATH: `uploads/${encrypted_file_name}`,
-        LOCAL: false,
-      });
-
+      const download_url = `http://encryption:8080/uploads/${encrypted_file_name}`;
       const download_response = await axios.get(download_url, {
         responseType: "stream",
       });
