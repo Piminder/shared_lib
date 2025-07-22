@@ -11,9 +11,10 @@ enum SERVICE {
 interface HOST {
   SERVICE: SERVICE;
   PATH: string;
+  LOCAL?: boolean;
 }
 
-function host({ SERVICE, PATH }: HOST): string {
+function host({ SERVICE, PATH, LOCAL = false }: HOST): string {
   let port = 8080;
 
   if ("auth" === SERVICE) port = 3000;
@@ -24,6 +25,7 @@ function host({ SERVICE, PATH }: HOST): string {
   else if ("encryption" === SERVICE) port = 9094;
   else if (SERVICE === "encryption_static") port = 9095;
 
+  if (LOCAL) return `http://localhost:${port}/${PATH}`;
   return `http://${SERVICE}:${port}/${PATH}`;
 }
 
