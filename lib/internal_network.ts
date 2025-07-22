@@ -246,7 +246,7 @@ export default class InternalServiceNetwork {
         headers: form.getHeaders(),
       });
 
-      MorgansWrapper.err(`respose data: ${JSON.stringify(response.data)}`);
+      MorgansWrapper.info(`respose data: ${JSON.stringify(response.data)}`);
       if (response.status !== 200) {
         return Result.failure("Error during encryption");
       }
