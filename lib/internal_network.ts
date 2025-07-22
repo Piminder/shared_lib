@@ -14,6 +14,8 @@ import Result from "./result";
 import GenericError from "./err";
 import { host, SERVICE } from "./cc_conf";
 import MorgansWrapper from "./morgans";
+import fs from "fs";
+import FormData from "form-data";
 
 export interface ICustomerByGroupID {
   id: string;
@@ -108,6 +110,7 @@ const ChargeStatus: {
   WAITINGPAYMENT: "WAITINGPAYMENT",
   OVERDUE: "OVERDUE",
 };
+import "node:fs";
 
 export type ChargeStatus = (typeof ChargeStatus)[keyof typeof ChargeStatus];
 
@@ -224,6 +227,39 @@ export default class InternalServiceNetwork {
     this.get_installment_to_notify = this.get_installment_to_notify.bind(this);
     this.send_self_generated_password_email =
       this.send_self_generated_password_email.bind(this);
+
+    this.encrypt_file = this.encrypt_file.bind(this);
+  }
+
+  public async encrypt_file(
+    filePath: string,
+    password: string = "default_key",
+  ): Promise<Result<string>> {
+    try {
+      const form = new FormData();
+      form.append("path", "/var/www/modi_six/uploads/");
+      form.append("file", fs.createReadStream(filePath));
+      form.append("password", password);
+
+      const url = host({ SERVICE: SERVICE.ENCRYPTION, PATH: "api/encrypt" });
+      const response = await axios.post(url, form, {
+        headers: form.getHeaders(),
+      });
+
+      if (response.status !== 200) {
+        return Result.failure("Error during encryption");
+      }
+
+      const encrypted_file = response.data?.encryptedFile;
+      if (!encrypted_file) {
+        return Result.failure("No encrypted file name returned by service");
+      }
+
+      return Result.success(`/var/www/modi_six/uploads/${encrypted_file}`);
+    } catch (err: any) {
+      MorgansWrapper.err(`Encryption error: ${err.message}`);
+      return Result.failure("Unexpected error during encryption");
+    }
   }
 
   public async send_self_generated_password_email({
