@@ -1,16 +1,16 @@
 import fs from "fs";
 import path from "path";
 
-const TOKEN_CACHE_PATH = path.resolve(".cache/token.json");
+export const TOKEN_CACHE_PATH = path.resolve(".cache/token.json");
 
-type TokenCache = {
+export type TokenCache = {
   [key: string]: {
     token: string;
     expires_at: number;
   };
 };
 
-function load_token_cache(): TokenCache {
+export function load_token_cache(): TokenCache {
   try {
     if (!fs.existsSync(TOKEN_CACHE_PATH)) return {};
     const data = fs.readFileSync(TOKEN_CACHE_PATH, "utf-8");
@@ -20,12 +20,12 @@ function load_token_cache(): TokenCache {
   }
 }
 
-function save_token_cache(cache: TokenCache) {
+export function save_token_cache(cache: TokenCache) {
   fs.mkdirSync(path.dirname(TOKEN_CACHE_PATH), { recursive: true });
   fs.writeFileSync(TOKEN_CACHE_PATH, JSON.stringify(cache, null, 2));
 }
 
-function get_cached_token(gref: string, service: string): string | null {
+export function get_cached_token(gref: string, service: string): string | null {
   const key = `${gref}:${service}`;
   const cache = load_token_cache();
 
@@ -36,7 +36,7 @@ function get_cached_token(gref: string, service: string): string | null {
   return null;
 }
 
-function cache_token(
+export function cache_token(
   gref: string,
   service: string,
   token: string,
