@@ -17,6 +17,31 @@ import MorgansWrapper from "./morgans";
 import fs from "fs";
 import FormData from "form-data";
 
+export interface InstallmentByReferenceCode {
+  id: string;
+  value: number;
+  total_value: number;
+  type: "INSTALLMENT" | string;
+  actual_installment: number;
+  total_installments: number;
+  status: "WAITINGPAYMENT" | "PAID" | "CANCELLED" | string;
+  package_discounted: boolean;
+  paidWhere: string | null;
+  paidWhen: string | null;
+  description: string;
+  payment_voucher_destination: string | null;
+  ip_confirmation: string;
+  geolocation: string;
+  due_date: string;
+  payment_method: string;
+  created_at: string;
+  updated_at: string;
+  company_id: string;
+  invoice_id: string;
+  customer_id: string;
+  product_id: string;
+}
+
 export interface ICustomerByGroupID {
   id: string;
 }
@@ -229,6 +254,36 @@ export default class InternalServiceNetwork {
       this.send_self_generated_password_email.bind(this);
 
     this.encrypt_and_return_stream = this.encrypt_and_return_stream.bind(this);
+  }
+
+  public async get_installment_by_reference_code(
+    code: string,
+  ): Promise<Result<InstallmentByReferenceCode>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const r = await axios.get(
+        host({
+          SERVICE: SERVICE.INVOICE,
+          PATH: `v1/api/inv/installment-by-ref/${code}`,
+        }),
+        {
+          headers,
+        },
+      );
+
+      if (r.status !== 200) return Result.failure(r.data.message);
+
+      return Result.success(r.data.message);
+    } catch (err: any) {
+      MorgansWrapper.err(
+        `1. Error when geting installment: ${err.response.data.message}`,
+      );
+      MorgansWrapper.err(`2. Error when geting installments: ${err}`);
+      return Result.failure(err.response.data.message);
+    }
   }
 
   public async encrypt_and_return_stream(
