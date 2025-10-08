@@ -55,7 +55,8 @@ export default class LParserBMEPS {
     this.content = this.parse(s);
   }
 
-  private parse_header(line: string): Header {
+  private parse_header(l: string): Header {
+    const line = l.trim();
     if (line.length !== 19)
       throw new Error("Invalid header. Expected 19 characters.");
 
@@ -66,7 +67,8 @@ export default class LParserBMEPS {
     };
   }
 
-  private parse_transaction(line: string): Transaction {
+  private parse_transaction(l: string): Transaction {
+    const line = l.trim();
     if (line.length !== 65)
       throw new Error("Invalid transaction. Expected 65 characters.");
 
@@ -79,7 +81,8 @@ export default class LParserBMEPS {
     };
   }
 
-  private parse_footer(line: string): Footer {
+  private parse_footer(l: string): Footer {
+    const line = l.trim();
     if (line.length !== 40)
       throw new Error("Invalid footer. Expected 58 characters.");
 
