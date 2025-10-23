@@ -17,6 +17,20 @@ import MorgansWrapper from "./morgans";
 import fs from "fs";
 import FormData from "form-data";
 
+export interface Transaction {
+  action: string;
+  description: string;
+  service_ref: string;
+  id: string;
+  created_at: string;
+  updated_at: string;
+  approved: boolean;
+  status: string;
+  amount: number;
+  method: string;
+  wallet_id: string;
+}
+
 export interface InstallmentByReferenceCode {
   id: string;
   value: number;
@@ -254,6 +268,49 @@ export default class InternalServiceNetwork {
       this.send_self_generated_password_email.bind(this);
 
     this.encrypt_and_return_stream = this.encrypt_and_return_stream.bind(this);
+    this.fetch_transactions = this.fetch_transactions.bind(this);
+  }
+
+  public async fetch_transactions(
+    wallet_id: string,
+    cursor: string | undefined,
+    stats: string | undefined,
+    page_size: number | undefined,
+    method: string | undefined,
+    start: string | undefined,
+    end: string | undefined,
+  ): Promise<Result<Transaction[]>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const r = await axios.get(
+        host({
+          SERVICE: SERVICE.CREDIT,
+          PATH: `v1/api/credit/txr/list/${wallet_id}?cursor=${cursor}&status=${stats}&page_size=${page_size}&method=${method}&start=${start}&end=${end}`,
+        }),
+        {
+          headers,
+        },
+      );
+
+      if (r.status !== 200) return Result.failure(r.data.message);
+
+      const txrs: Transaction[] = r.data.message.transactions.map(
+        (txr: Transaction) => {
+          return txr;
+        },
+      );
+
+      return Result.success(txrs);
+    } catch (err: any) {
+      MorgansWrapper.err(
+        `1. Error when getting transactions: ${err.response.data.message}`,
+      );
+      MorgansWrapper.err(`2. Error when getting transactions: ${err}`);
+      return Result.failure(err.response.data.message);
+    }
   }
 
   public async get_installment_by_reference_code(
