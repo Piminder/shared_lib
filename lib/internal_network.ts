@@ -284,11 +284,19 @@ export default class InternalServiceNetwork {
       "Content-Type": "application/json",
     };
 
+    let querys = "";
+    if (cursor) querys += `&cursor=${cursor}`;
+    if (stats) querys += `&status=${stats}`;
+    if (page_size) querys += `&page_size=${page_size}`;
+    if (method) querys += `&method=${method}`;
+    if (start) querys += `&start=${start}`;
+    if (end) querys += `&end=${end}`;
+
     try {
       const r = await axios.get(
         host({
           SERVICE: SERVICE.CREDIT,
-          PATH: `v1/api/credit/txr/list/${wallet_id}?cursor=${cursor}&status=${stats}&page_size=${page_size}&method=${method}&start=${start}&end=${end}`,
+          PATH: `v1/api/credit/txr/list/${wallet_id}${querys}`,
         }),
         {
           headers,
@@ -306,7 +314,7 @@ export default class InternalServiceNetwork {
       return Result.success(txrs);
     } catch (err: any) {
       MorgansWrapper.err(
-        `1. Error when getting transactions: ${err.response.data.message}`,
+        `1. Error when getting transactions: ${JSON.stringify(err.response.data.message)}`,
       );
       MorgansWrapper.err(`2. Error when getting transactions: ${err}`);
       return Result.failure(err.response.data.message);
