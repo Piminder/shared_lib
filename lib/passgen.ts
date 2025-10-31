@@ -2,7 +2,7 @@ export default function generate_password(length: number): string {
   const lower_case = "abcdefghijklmnopqrstuvwxyz";
   const upper_case = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const numbers = "0123456789";
-  const special_chars = "!@#$%^&*()_-+=<>?/.,;:";
+  const special_chars = "@";
 
   const all_chars = lower_case + upper_case + numbers + special_chars;
 
