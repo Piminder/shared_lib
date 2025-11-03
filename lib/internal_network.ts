@@ -269,6 +269,7 @@ export default class InternalServiceNetwork {
 
     this.encrypt_and_return_stream = this.encrypt_and_return_stream.bind(this);
     this.fetch_transactions = this.fetch_transactions.bind(this);
+    this.log_user_action = this.log_user_action.bind(this);
   }
 
   public async fetch_transactions(
@@ -735,6 +736,37 @@ export default class InternalServiceNetwork {
 
       return Result.success(r.data.message.id);
     } catch (error) {
+      return Result.failure(GenericError.unexpected_error______);
+    }
+  }
+
+  public async log_user_action(
+    action: string,
+    metadata?: Record<string, any>,
+  ): Promise<Result<void>> {
+    try {
+      const r = await axios.post(
+        host({
+          SERVICE: SERVICE.AUTHENTICATIOIN,
+          PATH: "v1/api/auth/user-log",
+        }),
+        {
+          action,
+          metadata,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: this.auth_token,
+          },
+        },
+      );
+
+      if (r.status !== 200)
+        return Result.failure(GenericError.unexpected_error______);
+      return Result.success(void 0);
+    } catch (error: any) {
+      MorgansWrapper.err("Failed to log user action", error);
       return Result.failure(GenericError.unexpected_error______);
     }
   }
