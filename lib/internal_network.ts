@@ -741,6 +741,7 @@ export default class InternalServiceNetwork {
   }
 
   public async log_user_action(
+    user_id: string,
     action: string,
     metadata?: Record<string, any>,
   ): Promise<Result<void>> {
@@ -751,13 +752,13 @@ export default class InternalServiceNetwork {
           PATH: "v1/api/auth/user-log",
         }),
         {
+          user_id,
           action,
           metadata,
         },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: this.auth_token,
           },
         },
       );
