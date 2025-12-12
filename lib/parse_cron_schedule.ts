@@ -126,6 +126,21 @@ export enum ScheduleType {
   // '59 23 28-31 * * [ "$(date +\%d -d tomorrow)" == "01" ] && echo "0 0 1 * *"'
   // (Executa no último dia do mês às 23:59)
   ```
+
+  - Agendamento para uma vez ao dia em um horário específico:
+  ```js
+  parse_schedule("once a day at 0");
+  // '0 0 * * *'
+  // (Executa todos os dias à meia-noite)
+
+  parse_schedule("once a day at 5");
+  // '0 5 * * *'
+  // (Executa todos os dias às 05:00)
+
+  parse_schedule("once a day at 23");
+  // '0 23 * * *'
+  // (Executa todos os dias às 23:00)
+  ```
 */
 export function parse_schedule(schedule: ScheduleType | string): string | null {
   // Enum padrão
@@ -140,6 +155,13 @@ export function parse_schedule(schedule: ScheduleType | string): string | null {
       return "0 8 1 * *";
     case ScheduleType.OnceAYear:
       return "0 8 1 1 *";
+  }
+
+  //  once a day at X hours
+  const onceDayAtMatch = schedule.match(/^once a day at (\d{1,2})$/);
+  if (onceDayAtMatch) {
+    const hour = Number.parseInt(onceDayAtMatch[1], 10);
+    if (hour >= 0 && hour <= 23) return `0 ${hour} * * *`;
   }
 
   // Match para intervalos personalizados
