@@ -29,23 +29,24 @@ export abstract class Elysia {
     schedule: ScheduleType | string = ScheduleType.OnceADay,
   ): void {
     const cron_schedule = parse_schedule(schedule);
+
     if (!cron_schedule) {
       throw new Error(`Invalid schedule format: ${schedule}`);
     }
 
-    cron
-      .schedule(cron_schedule, async () => {
-        MorgansWrapper.info("Executing scheduled tasks...");
-        try {
-          for (const task of this.tasks) {
-            MorgansWrapper.info(`Executando tarefa: ${task.name}...`);
-            await task();
-          }
-        } catch (error) {
-          this.on_error(error as Error);
+    const task = cron.schedule(cron_schedule, async () => {
+      MorgansWrapper.info("Executing scheduled tasks...");
+      try {
+        for (const task_fn of this.tasks) {
+          MorgansWrapper.info(`Executando tarefa: ${task_fn.name}...`);
+          await task_fn();
         }
-      })
-      .on("start", () => this.on_start())
-      .on("stop", () => this.on_stop());
+      } catch (error) {
+        this.on_error(error as Error);
+      }
+    });
+
+    task.on("task:started", () => this.on_start());
+    task.on("task:stopped", () => this.on_stop());
   }
 }
