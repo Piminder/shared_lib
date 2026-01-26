@@ -35,14 +35,12 @@ export abstract class Elysia {
     }
 
     const task = cron.schedule(cron_schedule, async () => {
-      MorgansWrapper.info("Executing scheduled tasks...");
       try {
         for (const task_fn of this.tasks) {
-          MorgansWrapper.info(`Executando tarefa: ${task_fn.name}...`);
           await task_fn();
         }
       } catch (error) {
-        this.on_error(error as Error);
+        MorgansWrapper.err("Cron failed but process kept alive", error);
       }
     });
 
