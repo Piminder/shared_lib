@@ -274,8 +274,8 @@ export default class InternalServiceNetwork {
   }
 
   public async publish_event({
-    id, type, tenant_id
-  }: { id: string, type: string, tenant_id: string }): Promise<Result<undefined>> {
+    id, type, tenant_id, user_id
+  }: { id: string, type: string, tenant_id: string, user_id: string }): Promise<Result<undefined>> {
     const headers = {
       "Content-Type": "application/json",
     };
