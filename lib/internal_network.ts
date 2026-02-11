@@ -270,6 +270,37 @@ export default class InternalServiceNetwork {
     this.encrypt_and_return_stream = this.encrypt_and_return_stream.bind(this);
     this.fetch_transactions = this.fetch_transactions.bind(this);
     this.log_user_action = this.log_user_action.bind(this);
+    this.publish_event = this.publish_event.bind(this);
+  }
+
+  public async publish_event({
+    id, type, tenant_id
+  }: { id: string, type: string, tenant_id: string }): Promise<Result<undefined>> {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      const payload = { id, type, tenant_id };
+
+      const r = await axios.post(
+        host({
+          SERVICE: SERVICE.ANALYTICS,
+          PATH: "webhook/events"
+        }),
+        payload,
+        {
+          headers,
+        },
+      );
+
+      if (r.status !== 200) return Result.failure(r.data.ok);
+
+      return Result.success(r.data.ok);
+    } catch (err: any) {
+      MorgansWrapper.err(`Error publishing event: ${type}[${id}] to ${tenant_id})}`);
+      return Result.failure(err);
+    }
   }
 
   public async fetch_transactions(
