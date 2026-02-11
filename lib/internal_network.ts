@@ -281,7 +281,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const payload = { id, type, tenant_id };
+      const payload = { id, type, tenant_id, user_id };
 
       const r = await axios.post(
         host({
