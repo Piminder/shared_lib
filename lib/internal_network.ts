@@ -277,28 +277,24 @@ export default class InternalServiceNetwork {
   public async publish_event<T extends AppEvent>(
     event: T
   ): Promise<Result<undefined>> {
-    const headers = {
-      "Content-Type": "application/json",
-    };
-
     try {
       const r = await axios.post(
-        host({
-          SERVICE: SERVICE.ANALYTICS,
-          PATH: "webhook/events"
-        }),
-        event, // envent == payload
-        { headers }
+        host({ SERVICE: SERVICE.ANALYTICS, PATH: "webhook/events" }),
+        event
       );
 
-      if (r.status !== 200) return Result.failure(r.data.ok);
+      return r.status === 200
+        ? Result.success(r.data.ok)
+        : Result.failure(r.data.ok);
 
-      return Result.success(r.data.ok);
     } catch (err: any) {
-      MorgansWrapper.err(`Error publishing event: ${event.type}[${event.id}]`);
+      MorgansWrapper.err(
+        `[Event Error] Type: ${event.type} | ID: ${event.id} | Tenant: ${event.tenant_id}`
+      );
       return Result.failure(err);
     }
   }
+
   public async fetch_transactions(
     wallet_id: string,
     cursor: string | undefined,
