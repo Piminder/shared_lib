@@ -1,3 +1,4 @@
+/// Id's de evento para o service de analytics com outros microservices.
 export function get_event_id() {
     const size = 14;
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
