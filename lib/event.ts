@@ -20,17 +20,30 @@ export enum EventType {
   InvoicePaid = "invoice.paid",
 }
 
-export interface InvoiceCreatedEvent {
-  type: EventType.InvoiceCreated;
+interface BaseEvent {
   id: string;
   tenant_id: string;
   user_id: string;
+  occurred_at: string; // ISO String for JSON
 }
 
-export interface InvoicePaidEvent {
+export interface InvoiceCreatedEvent extends BaseEvent {
+  type: EventType.InvoiceCreated;
+}
+
+export interface InvoicePaidEvent extends BaseEvent {
   type: EventType.InvoicePaid;
-  id: string;
   amount: number;
 }
 
 export type AppEvent = InvoiceCreatedEvent | InvoicePaidEvent;
+
+export function create_event<T extends AppEvent>(
+  data: Omit<T, "id" | "occurred_at">
+): T {
+  return {
+    ...data,
+    id: get_event_id(),
+    occurred_at: new Date().toISOString(),
+  } as T;
+}
