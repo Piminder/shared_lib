@@ -150,6 +150,7 @@ const ChargeStatus: {
   OVERDUE: "OVERDUE",
 };
 import "node:fs";
+import type { AppEvent } from "./event";
 
 export type ChargeStatus = (typeof ChargeStatus)[keyof typeof ChargeStatus];
 
@@ -273,36 +274,31 @@ export default class InternalServiceNetwork {
     this.publish_event = this.publish_event.bind(this);
   }
 
-  public async publish_event({
-    id, type, tenant_id, user_id
-  }: { id: string, type: string, tenant_id: string, user_id: string }): Promise<Result<undefined>> {
+  public async publish_event<T extends AppEvent>(
+    event: T
+  ): Promise<Result<undefined>> {
     const headers = {
       "Content-Type": "application/json",
     };
 
     try {
-      const payload = { id, type, tenant_id, user_id };
-
       const r = await axios.post(
         host({
           SERVICE: SERVICE.ANALYTICS,
           PATH: "webhook/events"
         }),
-        payload,
-        {
-          headers,
-        },
+        event, // envent == payload
+        { headers }
       );
 
       if (r.status !== 200) return Result.failure(r.data.ok);
 
       return Result.success(r.data.ok);
     } catch (err: any) {
-      MorgansWrapper.err(`Error publishing event: ${type}[${id}] to ${tenant_id})}`);
+      MorgansWrapper.err(`Error publishing event: ${event.type}[${event.id}]`);
       return Result.failure(err);
     }
   }
-
   public async fetch_transactions(
     wallet_id: string,
     cursor: string | undefined,
