@@ -15,9 +15,44 @@ export function get_event_id() {
   return `${prefix}${result}`;
 }
 
+
 export enum EventType {
+  // Auth
+  AuthLogin = "auth.login",
+  AuthLogout = "auth.logout",
+
+  // User
+  UserActive = "user.active",
+
+  // Customer
+  CustomerCreated = "customer.created",
+  CustomerDeleted = "customer.deleted",
+
+  // Invoice
   InvoiceCreated = "invoice.created",
-  InvoicePaid = "invoice.paid",
+  InstallmentPaid = "invoice.paid",
+  InvoicePaymentFailed = "invoice.payment_failed",
+  InvoiceOverdue = "invoice.overdue",
+  InvoiceCanceled = "invoice.canceled",
+
+  // Notification
+  NotificationSent = "notification.sent",
+  NotificationDelivered = "notification.delivered",
+  NotificationFailed = "notification.failed",
+  NotificationOpened = "notification.opened",
+
+  // Wallet
+  WalletCredited = "wallet.credited",
+  WalletDebited = "wallet.debited",
+  WalletInsufficientBalance = "wallet.insufficient_balance",
+
+  // Product
+  ProductCreated = "product.created",
+  ProductUpdated = "product.updated",
+  ProductDeleted = "product.deleted",
+
+  // Feature
+  FeatureUsed = "feature.used",
 }
 
 interface BaseEvent {
