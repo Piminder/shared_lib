@@ -15,6 +15,14 @@ export function get_event_id() {
   return `${prefix}${result}`;
 }
 
+interface BaseEvent {
+  id: string;
+  tenant_id: string;
+  user_id: string;
+  occurred_at: string; // ISO String for JSON
+}
+
+// =========================== TYPES =================================
 
 export enum EventType {
   // Auth
@@ -29,11 +37,10 @@ export enum EventType {
   CustomerDeleted = "customer.deleted",
 
   // Invoice
-  InvoiceCreated = "invoice.created",
+  InstallmentCreated = "invoice.created",
   InstallmentPaid = "invoice.paid",
-  InvoicePaymentFailed = "invoice.payment_failed",
-  InvoiceOverdue = "invoice.overdue",
-  InvoiceCanceled = "invoice.canceled",
+  InstallmentPaymentFailed = "invoice.payment_failed",
+  InstallmentOverdue = "invoice.overdue", // PARCELA EM ATRASO
 
   // Notification
   NotificationSent = "notification.sent",
@@ -51,28 +58,145 @@ export enum EventType {
   ProductUpdated = "product.updated",
   ProductDeleted = "product.deleted",
 
-  // Feature
-  FeatureUsed = "feature.used",
 }
 
-interface BaseEvent {
-  id: string;
-  tenant_id: string;
-  user_id: string;
-  occurred_at: string; // ISO String for JSON
+// =========================== AUTH ==================================
+
+export interface AuthLoginEvent extends BaseEvent {
+  type: EventType.AuthLogin;
 }
 
-export interface InvoiceCreatedEvent extends BaseEvent {
-  type: EventType.InvoiceCreated;
+export interface AuthLogoutEvent extends BaseEvent {
+  type: EventType.AuthLogout;
 }
 
-export interface InvoicePaidEvent extends BaseEvent {
-  type: EventType.InvoicePaid;
+// =========================== USER ==================================
+
+export interface UserActiveEvent extends BaseEvent {
+  type: EventType.UserActive;
+}
+
+// =========================== CUSTOMER ==============================
+
+export interface CustomerCreatedEvent extends BaseEvent {
+  type: EventType.CustomerCreated;
+  customer_id: string;
+}
+
+export interface CustomerDeletedEvent extends BaseEvent {
+  type: EventType.CustomerDeleted;
+  customer_id: string;
+}
+
+// =========================== INVOICE ===============================
+
+export interface InstallmentCreatedEvent extends BaseEvent {
+  type: EventType.InstallmentCreated;
+  installment_id: string;
   amount: number;
 }
 
-export type AppEvent = InvoiceCreatedEvent | InvoicePaidEvent;
+export interface InstallmentPaidEvent extends BaseEvent {
+  type: EventType.InstallmentPaid;
+  installment_id: string;
+  amount: number;
+}
 
+export interface InstallmentPaymentFailedEvent extends BaseEvent {
+  type: EventType.InstallmentPaymentFailed;
+  installment_id: string;
+  amount: number;
+}
+
+export interface InstallmentOverdueEvent extends BaseEvent {
+  type: EventType.InstallmentOverdue;
+  installment_id: string;
+  amount: number;
+}
+
+// =========================== NOTIFICATION ==========================
+
+export interface NotificationSentEvent extends BaseEvent {
+  type: EventType.NotificationSent;
+  channel: "whatsapp" | "sms" | "email";
+}
+
+export interface NotificationDeliveredEvent extends BaseEvent {
+  type: EventType.NotificationDelivered;
+  channel: "whatsapp" | "sms" | "email";
+}
+
+export interface NotificationFailedEvent extends BaseEvent {
+  type: EventType.NotificationFailed;
+  channel: "whatsapp" | "sms" | "email";
+}
+
+export interface NotificationOpenedEvent extends BaseEvent {
+  type: EventType.NotificationOpened;
+  channel: "whatsapp" | "sms" | "email";
+}
+
+// =========================== WALLET ================================
+
+export interface WalletCreditedEvent extends BaseEvent {
+  type: EventType.WalletCredited;
+  amount: number;
+}
+
+export interface WalletDebitedEvent extends BaseEvent {
+  type: EventType.WalletDebited;
+  amount: number;
+}
+
+export interface WalletInsufficientBalanceEvent extends BaseEvent {
+  type: EventType.WalletInsufficientBalance;
+  attempted_amount: number;
+}
+
+// =========================== PRODUCT ===============================
+
+export interface ProductCreatedEvent extends BaseEvent {
+  type: EventType.ProductCreated;
+  product_id: string;
+}
+
+export interface ProductUpdatedEvent extends BaseEvent {
+  type: EventType.ProductUpdated;
+  product_id: string;
+}
+
+export interface ProductDeletedEvent extends BaseEvent {
+  type: EventType.ProductDeleted;
+  product_id: string;
+}
+
+// =========================== FEATURE ===============================
+
+
+// =========================== UNION =================================
+
+export type AppEvent =
+  | AuthLoginEvent
+  | AuthLogoutEvent
+  | UserActiveEvent
+  | CustomerCreatedEvent
+  | CustomerDeletedEvent
+  | InstallmentCreatedEvent
+  | InstallmentPaidEvent
+  | InstallmentPaymentFailedEvent
+  | InstallmentOverdueEvent
+  | NotificationSentEvent
+  | NotificationDeliveredEvent
+  | NotificationFailedEvent
+  | NotificationOpenedEvent
+  | WalletCreditedEvent
+  | WalletDebitedEvent
+  | WalletInsufficientBalanceEvent
+  | ProductCreatedEvent
+  | ProductUpdatedEvent
+  | ProductDeletedEvent;
+
+// =========================== FACTORY ================================
 export function create_event<T extends AppEvent>(
   data: Omit<T, "id" | "occurred_at">
 ): T {
