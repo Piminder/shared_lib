@@ -37,10 +37,10 @@ export enum EventType {
   CustomerDeleted = "customer.deleted",
 
   // Invoice
-  InstallmentCreated = "invoice.created",
-  InstallmentPaid = "invoice.paid",
-  InstallmentPaymentFailed = "invoice.payment_failed",
-  InstallmentOverdue = "invoice.overdue", // PARCELA EM ATRASO
+  InvoiceCreated = "invoice.created",
+  InvoicePaid = "invoice.paid",
+  InvoicePaymentFailed = "invoice.payment_failed",
+  InvoiceOverdue = "invoice.overdue",
 
   // Notification
   NotificationSent = "notification.sent",
@@ -90,27 +90,27 @@ export interface CustomerDeletedEvent extends BaseEvent {
 
 // =========================== INVOICE ===============================
 
-export interface InstallmentCreatedEvent extends BaseEvent {
-  type: EventType.InstallmentCreated;
-  installment_id: string;
+export interface InvoiceCreatedEvent extends BaseEvent {
+  type: EventType.InvoiceCreated;
+  invoice_id: string;
   amount: number;
 }
 
-export interface InstallmentPaidEvent extends BaseEvent {
-  type: EventType.InstallmentPaid;
-  installment_id: string;
+export interface InvoicePaidEvent extends BaseEvent {
+  type: EventType.InvoicePaid;
+  invoice_id: string;
   amount: number;
 }
 
-export interface InstallmentPaymentFailedEvent extends BaseEvent {
-  type: EventType.InstallmentPaymentFailed;
-  installment_id: string;
+export interface InvoicePaymentFailedEvent extends BaseEvent {
+  type: EventType.InvoicePaymentFailed;
+  invoice_id: string;
   amount: number;
 }
 
-export interface InstallmentOverdueEvent extends BaseEvent {
-  type: EventType.InstallmentOverdue;
-  installment_id: string;
+export interface InvoiceOverdueEvent extends BaseEvent {
+  type: EventType.InvoiceOverdue;
+  invoice_id: string;
   amount: number;
 }
 
@@ -181,10 +181,10 @@ export type AppEvent =
   | UserActiveEvent
   | CustomerCreatedEvent
   | CustomerDeletedEvent
-  | InstallmentCreatedEvent
-  | InstallmentPaidEvent
-  | InstallmentPaymentFailedEvent
-  | InstallmentOverdueEvent
+  | InvoiceCreatedEvent
+  | InvoicePaidEvent
+  | InvoicePaymentFailedEvent
+  | InvoiceOverdueEvent
   | NotificationSentEvent
   | NotificationDeliveredEvent
   | NotificationFailedEvent
