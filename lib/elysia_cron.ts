@@ -5,6 +5,7 @@ import MorgansWrapper from "./morgans";
 import { parse_schedule, ScheduleType } from "./parse_cron_schedule";
 
 type VoidFunctionAsync = () => Promise<void>;
+ 
 
 export abstract class Elysia {
 	private tasks: VoidFunctionAsync[] = [];
