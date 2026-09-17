@@ -1,80 +1,62 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: <> */
-import axios from "axios";
 import cron from "node-cron";
-import MorgansWrapper from "./morgans";
 import { parse_schedule, ScheduleType } from "./parse_cron_schedule";
+import MorgansWrapper from "./morgans";
 
 type VoidFunctionAsync = () => Promise<void>;
- 
 
 export abstract class Elysia {
-	private tasks: VoidFunctionAsync[] = [];
-	protected abstract on_start(): void;
-	protected abstract on_stop(): void;
-	protected abstract on_error(error: Error): void;
+  private tasks: VoidFunctionAsync[] = [];
 
-	constructor() {
-		this.init_state();
-	}
+  constructor() {
+    this.init_state();
+  }
 
-	protected init_state(): void {
-		MorgansWrapper.info("Initializing Elysia service...");
-	}
+  protected init_state(): void {
+    MorgansWrapper.info("Initializing Elysia service...");
+  }
 
-	public add_task(task: VoidFunctionAsync): void {
-		this.tasks.push(task);
-	}
+  protected abstract on_start(): void;
 
-	private async send_heartbeat(
-		status: "SUCCESS" | "FAILED",
-		errorMsg?: string,
-	) {
-		try {
-			const cron_name = this.constructor.name;
-			const service_name = process.env.SERVICE_NAME || "unknown-service";
-			const monitor_url = process.env.HEALTH_MONITOR_URL;
+  protected abstract on_stop(): void;
 
-			await axios.post(
-				`${monitor_url}/cron/heartbeat`,
-				{
-					cron_name,
-					service_name,
-					status,
-					error: errorMsg,
-				},
-				{ timeout: 2000 },
-			);
-		} catch (err: any) {
-			MorgansWrapper.err(
-				"Não foi possível enviar Heartbeat para o Health Monitor",
-				err,
-			);
-		}
-	}
+  protected abstract on_error(error: Error): void;
 
-	public wake_up(
-		schedule: ScheduleType | string = ScheduleType.OnceADay,
-	): void {
-		const cron_schedule = parse_schedule(schedule);
+  public add_task(task: VoidFunctionAsync): void {
+    this.tasks.push(task);
+  }
 
-		if (!cron_schedule) {
-			throw new Error(`Invalid schedule format: ${schedule}`);
-		}
+  public wake_up(
+    schedule: ScheduleType | string = ScheduleType.OnceADay,
+    run_immediately = false,
+  ): void {
+    const cron_schedule = parse_schedule(schedule);
 
-		const task = cron.schedule(cron_schedule, async () => {
-			try {
-				for (const task_fn of this.tasks) {
-					await task_fn();
-				}
+    if (!cron_schedule) {
+      throw new Error(`Invalid schedule format: ${schedule}`);
+    }
 
-				await this.send_heartbeat("SUCCESS");
-			} catch (error: any) {
-				MorgansWrapper.err("Cron failed but process kept alive", error);
-				await this.send_heartbeat("FAILED", error.message);
-			}
-		});
+    const run_all_tasks = async () => {
+      try {
+        for (const task_fn of this.tasks) {
+          await task_fn();
+        }
+      } catch (error) {
+        MorgansWrapper.err("Cron failed but process kept alive", error);
+      }
+    };
 
-		task.on("task:started", () => this.on_start());
-		task.on("task:stopped", () => this.on_stop());
-	}
+    const task = cron.schedule(cron_schedule, run_all_tasks);
+
+    task.on("task:started", () => this.on_start());
+    task.on("task:stopped", () => this.on_stop());
+
+    // Catch-up: se o processo ficou fora do ar durante o horário agendado (deploy,
+    // crash, restart), reprocessa assim que voltar em vez de esperar até o próximo
+    // ciclo do cron. Protegido por dedup por dia nos próprios tasks (não reenvia o
+    // que já foi enviado hoje).
+    if (run_immediately) {
+      MorgansWrapper.info("Running catch-up execution on startup...");
+      run_all_tasks();
+    }
+  }
 }
