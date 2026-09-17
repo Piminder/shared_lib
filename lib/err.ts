@@ -40,6 +40,8 @@ const GenericError = {
   ope_already_completed_: "E-034", // A operação solicitada já foi concluída com sucesso anteriormente e não pode ser repetida (ex: solicitação de pagamento de uma fatura que já foi processada com sucesso. ativações, confirmações, etc.).
   phone_not_found_______: "E-035", // Para operações com double check, tanto do customer e tanto de um dado secuandario, como email ou telemovel.
   email_not_found_______: "E-036", // Para operações com double check, tanto do customer e tanto de um dado secuandario, como email ou telemovel.
+  invalid_session_______: "E-037", // Caso a sessão não exista no banco de dados (ex: ao tentar-se obter uma sessao via refresh key)
+  session_revoked_______: "E-038", // Caso uma sessão tenha sido revogada
   resource_unavailable__: "E-100",
 };
 

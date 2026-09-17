@@ -1,0 +1,15 @@
+// LEMBRAR DE ADICONAR O ARQUIVO .hooks.json NO .gitignore
+[
+    {
+        "company_id": "xxx",
+        "event": "payment.confirmed",
+        "target_url": "https://api.cliente.com/webhook",
+        "active": true
+    },
+    {
+        "company_id": "xxx",
+        "event": "customer.status_changed",
+        "target_url": "https://crm.cliente.com/update",
+        "active": true
+    }
+]
