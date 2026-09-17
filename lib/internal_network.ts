@@ -17,6 +17,24 @@ import MorgansWrapper from "./morgans";
 import fs from "fs";
 import FormData from "form-data";
 
+/**
+ * Extrai uma mensagem de erro legível de forma segura, mesmo quando a falha é de
+ * rede (timeout/DNS/conexão recusada) e `err.response` não existe — acessar
+ * `err.response.data.message` diretamente nesses casos lança uma 2ª exceção não
+ * tratada dentro do próprio catch, em vez de devolver um `Result.failure` limpo.
+ */
+function extract_error_message(err: any): string {
+  const status = err?.response?.status;
+  const url = err?.config?.url;
+  const message =
+    err?.response?.data?.message ??
+    err?.response?.data?.error ??
+    err?.message ??
+    String(err);
+
+  return status || url ? `${message} (status: ${status}, url: ${url})` : message;
+}
+
 export interface Transaction {
   action: string;
   description: string;
@@ -338,10 +356,9 @@ export default class InternalServiceNetwork {
       return Result.success(txrs);
     } catch (err: any) {
       MorgansWrapper.err(
-        `1. Error when getting transactions: ${JSON.stringify(err.response.data.message)}`,
+        `Error when getting transactions: ${extract_error_message(err)}`,
       );
-      MorgansWrapper.err(`2. Error when getting transactions: ${err}`);
-      return Result.failure(err.response.data.message);
+      return Result.failure(extract_error_message(err));
     }
   }
 
@@ -368,10 +385,9 @@ export default class InternalServiceNetwork {
       return Result.success(r.data.message);
     } catch (err: any) {
       MorgansWrapper.err(
-        `1. Error when geting installment: ${err.response.data.message}`,
+        `Error when geting installment: ${extract_error_message(err)}`,
       );
-      MorgansWrapper.err(`2. Error when geting installments: ${err}`);
-      return Result.failure(err.response.data.message);
+      return Result.failure(extract_error_message(err));
     }
   }
 
@@ -453,10 +469,9 @@ export default class InternalServiceNetwork {
       return Result.success(r.data.message);
     } catch (err: any) {
       MorgansWrapper.err(
-        `Error send autogen password to ${email}: ${err.response.data.error}`,
+        `Error send autogen password to ${email}: ${extract_error_message(err)}`,
       );
-      MorgansWrapper.err(`Error send autogen password to ${email}: ${err}`);
-      return Result.failure(err.response.data.error);
+      return Result.failure(extract_error_message(err));
     }
   }
 
@@ -481,10 +496,9 @@ export default class InternalServiceNetwork {
       return Result.success(r.data.message);
     } catch (err: any) {
       MorgansWrapper.err(
-        `1. Error when geting installment to notify: ${err.response.data.message}`,
+        `Error when geting installment to notify: ${extract_error_message(err)}`,
       );
-      MorgansWrapper.err(`2. Error when geting installments to notify: ${err}`);
-      return Result.failure(err.response.data.message);
+      return Result.failure(extract_error_message(err));
     }
   }
 
@@ -511,9 +525,9 @@ export default class InternalServiceNetwork {
       return Result.success(r.data.message);
     } catch (err: any) {
       MorgansWrapper.err(
-        `1. Error when geting tax status: ${err.response.data.message}`,
+        `Error when geting tax status: ${extract_error_message(err)}`,
       );
-      return Result.failure(err.response.data.message);
+      return Result.failure(extract_error_message(err));
     }
   }
 
@@ -548,9 +562,9 @@ export default class InternalServiceNetwork {
       return Result.success(true);
     } catch (err: any) {
       MorgansWrapper.err(
-        `1. Error pay subscription tax: ${err.response.data.message}`,
+        `Error pay subscription tax: ${extract_error_message(err)}`,
       );
-      return Result.failure(err.response.data.message);
+      return Result.failure(extract_error_message(err));
     }
   }
 
@@ -583,10 +597,9 @@ export default class InternalServiceNetwork {
       return Result.success(cus);
     } catch (error: any) {
       MorgansWrapper.err(
-        `1. Error when geting a customer by group: ${error.response.data.message}`,
+        `Error when geting a customer by group: ${extract_error_message(error)}`,
       );
-      MorgansWrapper.err(`2. Error when geting a customer by group: ${error}`);
-      return Result.failure(error.response.data.message);
+      return Result.failure(extract_error_message(error));
     }
   }
   public async get_public_product_byref(
@@ -614,10 +627,9 @@ export default class InternalServiceNetwork {
       return Result.success(data.message as IPublicProductMessage);
     } catch (error: any) {
       MorgansWrapper.err(
-        `1. Error when geting a public product: ${error.response.data.message}`,
+        `Error when geting a public product: ${extract_error_message(error)}`,
       );
-      MorgansWrapper.err(`2. Error when geting a public product: ${error}`);
-      return Result.failure(error.response.data.message);
+      return Result.failure(extract_error_message(error));
     }
   }
 
@@ -654,7 +666,10 @@ export default class InternalServiceNetwork {
       return Result.success(void 0);
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (err: any) {
-      return Result.failure(err.response.data.message);
+      MorgansWrapper.err(
+        `Error sending recovery password mail: ${extract_error_message(err)}`,
+      );
+      return Result.failure(extract_error_message(err));
     }
   }
 
@@ -690,6 +705,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(void 0);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -725,6 +743,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(void 0);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -759,6 +780,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(r.data.message.id);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -817,8 +841,8 @@ export default class InternalServiceNetwork {
       const data: ICompanyResponse = r.data;
       return Result.success(data.message as ICompany);
     } catch (error: any) {
-      MorgansWrapper.log(`Unexpected error: ${error.response.data.message}`);
-      return Result.failure(error.response.data.message);
+      MorgansWrapper.err(`Error getting company: ${extract_error_message(error)}`);
+      return Result.failure(extract_error_message(error));
     }
   }
   public async get_company_wallet(
@@ -845,6 +869,9 @@ export default class InternalServiceNetwork {
       const data: IWalletResponse = r.data;
       return Result.success(data.message as IWalletResponseMessage);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -883,6 +910,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(void 0);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -927,6 +957,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(void 0);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -979,8 +1012,10 @@ export default class InternalServiceNetwork {
       return Result.success(res.message as ICustomerMessage);
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (error: any) {
-      MorgansWrapper.log(`Unexpected error: ${error.response.data.message}`);
-      return Result.failure(error.response.data.message);
+      MorgansWrapper.err(
+        `Error creating customer: ${extract_error_message(error)}`,
+      );
+      return Result.failure(extract_error_message(error));
     }
   }
 
@@ -1014,6 +1049,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(r.data.message);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1050,6 +1088,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(r.data.message);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1079,6 +1120,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(r.data.message);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1118,6 +1162,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(true);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1161,6 +1208,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(true);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1197,6 +1247,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(true);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1236,6 +1289,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(true);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1272,6 +1328,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(true);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1308,6 +1367,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(true);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1344,6 +1406,9 @@ export default class InternalServiceNetwork {
 
       return Result.success(true);
     } catch (error) {
+      MorgansWrapper.err(
+        `InternalServiceNetwork error: ${extract_error_message(error)}`,
+      );
       return Result.failure(GenericError.unexpected_error______);
     }
   }
@@ -1372,7 +1437,10 @@ export default class InternalServiceNetwork {
       return Result.success(void 0);
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (error: any) {
-      return Result.failure(error.response.data.message);
+      MorgansWrapper.err(
+        `Error disposing notification file: ${extract_error_message(error)}`,
+      );
+      return Result.failure(extract_error_message(error));
     }
   }
 
@@ -1401,7 +1469,10 @@ export default class InternalServiceNetwork {
       return Result.success(void 0);
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (error: any) {
-      return Result.failure(error.response.data.message);
+      MorgansWrapper.err(
+        `Error deleting internal customer in invoice db: ${extract_error_message(error)}`,
+      );
+      return Result.failure(extract_error_message(error));
     }
   }
 }
