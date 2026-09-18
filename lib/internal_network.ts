@@ -673,6 +673,49 @@ export default class InternalServiceNetwork {
     }
   }
 
+  /**
+   * Linka (cria/reusa, idempotente por invoice_ref) uma NotificationOptions no
+   * banco dedicado do notification. Não é a fonte da verdade dessa configuração
+   * — o invoice continua sendo dono/gravando notification_options no banco
+   * compartilhado como sempre fez (usado internamente pra sync do
+   * invoice_database e pra reaproveitar preferências em faturas de assinatura).
+   * Isso só dá ao notification a própria cópia, pro cron dele não precisar
+   * mais ler o banco compartilhado pra isso.
+   */
+  public async create_notification_options_link(payload: {
+    invoice_ref: string;
+    days_before: number;
+    days_after: number;
+    email_options: { before: boolean; after: boolean; due_date: boolean };
+    sms_options: { before: boolean; after: boolean; due_date: boolean };
+    whatsapp_options: { before: boolean; after: boolean; due_date: boolean };
+  }): Promise<Result<{ id: string }>> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (process.env.INTERNAL_KEY) headers["x-internal-key"] = process.env.INTERNAL_KEY;
+
+    try {
+      const r = await axios.post(
+        host({
+          SERVICE: SERVICE.NOTIFICATION,
+          PATH: "v1/api/notification/internal/notification-options",
+        }),
+        payload,
+        { headers },
+      );
+
+      if (r.status !== 200) return Result.failure(GenericError.unexpected_error______);
+
+      return Result.success(r.data.message);
+    } catch (err: any) {
+      MorgansWrapper.err(
+        `Error linking notification options for invoice ${payload.invoice_ref}: ${err}`,
+      );
+      return Result.failure(GenericError.unexpected_error______);
+    }
+  }
+
   public async notify_about_deposit(
     to: string,
     amount: number,
