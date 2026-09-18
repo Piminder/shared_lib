@@ -292,6 +292,24 @@ export default class InternalServiceNetwork {
     this.publish_event = this.publish_event.bind(this);
   }
 
+  /**
+   * Headers for service-to-service calls to the credit service. Adds the shared
+   * `x-internal-key` secret when `INTERNAL_KEY` is set in the environment; a
+   * no-op otherwise, so this stays backward compatible until every service and
+   * the credit service itself have the key configured.
+   */
+  private credit_internal_headers(
+    extra: Record<string, string> = {},
+  ): Record<string, string> {
+    const h: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...extra,
+    };
+    const key = process.env.INTERNAL_KEY;
+    if (key) h["x-internal-key"] = key;
+    return h;
+  }
+
   public async publish_event<T extends AppEvent>(
     event: T
   ): Promise<Result<undefined>> {
@@ -322,9 +340,7 @@ export default class InternalServiceNetwork {
     start: string | undefined,
     end: string | undefined,
   ): Promise<Result<Transaction[]>> {
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const headers = this.credit_internal_headers();
 
     let querys = "";
     if (cursor) querys += `&cursor=${cursor}`;
@@ -797,9 +813,7 @@ export default class InternalServiceNetwork {
     name: string,
     company_ref: string,
   ): Promise<Result<string>> {
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const headers = this.credit_internal_headers();
 
     const request_data = {
       name: name,
@@ -891,9 +905,7 @@ export default class InternalServiceNetwork {
   public async get_company_wallet(
     ref: string,
   ): Promise<Result<IWalletResponseMessage>> {
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const headers = this.credit_internal_headers();
 
     try {
       const r = await axios.get(
@@ -923,9 +935,7 @@ export default class InternalServiceNetwork {
     wallet_id: string,
     amount: number,
   ): Promise<Result<void>> {
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const headers = this.credit_internal_headers();
 
     const request_data = {
       wallet_id: wallet_id,
@@ -966,9 +976,7 @@ export default class InternalServiceNetwork {
     whatsapp,
     service_ref,
   }: INotificationServiceDiscountArgs): Promise<Result<void>> {
-    const headers = {
-      "Content-Type": "application/json",
-    };
+    const headers = this.credit_internal_headers();
 
     const request_data = {
       wallet_id: wallet_id,
@@ -1216,10 +1224,7 @@ export default class InternalServiceNetwork {
     installment_id: string,
     specific_value: number | null = null,
   ): Promise<Result<boolean>> {
-    const headers = {
-      "Content-Type": "application/json",
-      // Authorization: this.auth_token,
-    };
+    const headers = this.credit_internal_headers();
 
     let request_data: unknown = {};
 
