@@ -18,6 +18,24 @@ import fs from "fs";
 import FormData from "form-data";
 
 /**
+ * Instância dedicada só pra chamadas c2c deste ficheiro (todas via `host()`, sempre
+ * a outros microservices Piminder — nunca a provedores externos). Anexa o segredo
+ * partilhado `x-internal-key` (env `INTERNAL_KEY`) em toda chamada automaticamente,
+ * pra não depender de cada método lembrar de incluir o header manualmente. No-op se
+ * `INTERNAL_KEY` não estiver configurado (compatível com serviços ainda não
+ * atualizados).
+ */
+const internal_axios = axios.create();
+internal_axios.interceptors.request.use((config) => {
+  const key = process.env.INTERNAL_KEY;
+  if (key) {
+    config.headers = config.headers ?? ({} as typeof config.headers);
+    (config.headers as Record<string, string>)["x-internal-key"] = key;
+  }
+  return config;
+});
+
+/**
  * Extrai uma mensagem de erro legível de forma segura, mesmo quando a falha é de
  * rede (timeout/DNS/conexão recusada) e `err.response` não existe — acessar
  * `err.response.data.message` diretamente nesses casos lança uma 2ª exceção não
@@ -314,7 +332,7 @@ export default class InternalServiceNetwork {
     event: T
   ): Promise<Result<undefined>> {
     try {
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({ SERVICE: SERVICE.ANALYTICS, PATH: "webhook/events" }),
         event
       );
@@ -351,7 +369,7 @@ export default class InternalServiceNetwork {
     if (end) querys += `&end=${end}`;
 
     try {
-      const r = await axios.get(
+      const r = await internal_axios.get(
         host({
           SERVICE: SERVICE.CREDIT,
           PATH: `v1/api/credit/txr/list/${wallet_id}${querys}`,
@@ -386,7 +404,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.get(
+      const r = await internal_axios.get(
         host({
           SERVICE: SERVICE.INVOICE,
           PATH: `v1/api/inv/installment-by-ref/${code}`,
@@ -423,7 +441,7 @@ export default class InternalServiceNetwork {
         PATH: "api/encrypt",
         LOCAL: false,
       });
-      const response = await axios.post(url, form, {
+      const response = await internal_axios.post(url, form, {
         headers: form.getHeaders(),
       });
 
@@ -438,7 +456,7 @@ export default class InternalServiceNetwork {
       }
 
       const download_url = `http://encryption:8080/uploads/${encrypted_file_name}`;
-      const download_response = await axios.get(download_url, {
+      const download_response = await internal_axios.get(download_url, {
         responseType: "stream",
       });
 
@@ -469,7 +487,7 @@ export default class InternalServiceNetwork {
         company_name: company_name,
       };
 
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/auth/pass_autogen",
@@ -497,7 +515,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.get(
+      const r = await internal_axios.get(
         host({
           SERVICE: SERVICE.INVOICE,
           PATH: "v1/api/inv/internal/installment",
@@ -526,7 +544,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.get(
+      const r = await internal_axios.get(
         host({
           SERVICE: SERVICE.AUTHENTICATIOIN,
           PATH: `v1/api/auth/tax_status?company_id=${ref}`,
@@ -561,7 +579,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.AUTHENTICATIOIN,
           PATH: "v1/api/auth/pay_subscription",
@@ -593,7 +611,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.get(
+      const r = await internal_axios.get(
         host({
           SERVICE: SERVICE.INVOICE,
           PATH: `v1/api/inv/group/${group_id}/customers`,
@@ -626,7 +644,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.get(
+      const r = await internal_axios.get(
         host({
           SERVICE: SERVICE.PRODUCT,
           PATH: `v1/api/product/store/product-byref?id=${id}`,
@@ -665,7 +683,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/auth/password",
@@ -712,7 +730,7 @@ export default class InternalServiceNetwork {
     if (process.env.INTERNAL_KEY) headers["x-internal-key"] = process.env.INTERNAL_KEY;
 
     try {
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/internal/notification-options",
@@ -748,7 +766,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/wallet-deposit-mail",
@@ -786,7 +804,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/sms",
@@ -821,7 +839,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({
           SERVICE: SERVICE.CREDIT,
           PATH: "v1/api/credit/wallet/create",
@@ -850,7 +868,7 @@ export default class InternalServiceNetwork {
     metadata?: Record<string, any>,
   ): Promise<Result<void>> {
     try {
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({
           SERVICE: SERVICE.AUTHENTICATIOIN,
           PATH: "v1/api/auth/user-log",
@@ -882,7 +900,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.get(
+      const r = await internal_axios.get(
         host({
           SERVICE: SERVICE.AUTHENTICATIOIN,
           PATH: `v1/api/auth/company?id=${id}`,
@@ -908,7 +926,7 @@ export default class InternalServiceNetwork {
     const headers = this.credit_internal_headers();
 
     try {
-      const r = await axios.get(
+      const r = await internal_axios.get(
         host({
           SERVICE: SERVICE.CREDIT,
           PATH: `v1/api/credit/wallet/cref/${ref}`,
@@ -947,7 +965,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const auth_response = await axios.post(
+      const auth_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.CREDIT,
           PATH: "v1/api/credit/wallet/deposit",
@@ -992,7 +1010,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const auth_response = await axios.post(
+      const auth_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.CREDIT,
           PATH: "v1/api/credit/wallet/debit",
@@ -1045,7 +1063,7 @@ export default class InternalServiceNetwork {
           ? `v1/api/auth/internal/customer?company_id=${args.company_id}`
           : "v1/api/auth/customer/create";
 
-      const auth_response = await axios.post(
+      const auth_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.AUTHENTICATIOIN,
           PATH: path,
@@ -1080,7 +1098,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({
           SERVICE: SERVICE.PRODUCT,
           PATH: "v1/api/product/internal/store/transaction_customer",
@@ -1118,7 +1136,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({
           SERVICE: SERVICE.PRODUCT,
           PATH: "v1/api/product/internal/store/purchase",
@@ -1155,7 +1173,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.post(
+      const r = await internal_axios.post(
         host({
           SERVICE: SERVICE.PRODUCT,
           PATH: "v1/api/product",
@@ -1197,7 +1215,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/invoice/mail",
@@ -1240,7 +1258,7 @@ export default class InternalServiceNetwork {
     }
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.CREDIT,
           PATH: "v1/api/credit/discount",
@@ -1279,7 +1297,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/invoice/sms",
@@ -1321,7 +1339,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/invoice/mail/confirm",
@@ -1360,7 +1378,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/whatsapp/confirm-payment",
@@ -1399,7 +1417,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/whatsapp/deny-payment",
@@ -1438,7 +1456,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const notify_response = await axios.post(
+      const notify_response = await internal_axios.post(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: "v1/api/notification/whatsapp/create-invoice",
@@ -1469,7 +1487,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.delete(
+      const r = await internal_axios.delete(
         host({
           SERVICE: SERVICE.NOTIFICATION,
           PATH: `v1/api/notification/dispose?company_id=${company_id}`,
@@ -1501,7 +1519,7 @@ export default class InternalServiceNetwork {
     };
 
     try {
-      const r = await axios.delete(
+      const r = await internal_axios.delete(
         host({
           SERVICE: SERVICE.INVOICE,
           PATH: `v1/api/inv/internal/customer/${cus_id}`,
