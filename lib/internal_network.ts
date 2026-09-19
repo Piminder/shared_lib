@@ -941,7 +941,20 @@ export default class InternalServiceNetwork {
 
       const data: IWalletResponse = r.data;
       return Result.success(data.message as IWalletResponseMessage);
-    } catch (error) {
+    } catch (error: any) {
+      // A genuine "this company has no wallet yet" (credit_service's own
+      // GenericError.data_not_found________, "E-018") is a distinct outcome from
+      // every other failure (timeout, credit_service down, DB connection
+      // exhaustion, ...). Callers that provision a wallet on a miss MUST tell
+      // the two apart — otherwise a transient failure here reads exactly like
+      // "doesn't exist yet" and can trigger (or skip) provisioning wrongly.
+      if (
+        error?.response?.status === 400 &&
+        error?.response?.data?.message === GenericError.data_not_found________
+      ) {
+        return Result.failure(GenericError.data_not_found________);
+      }
+
       MorgansWrapper.err(
         `InternalServiceNetwork error: ${extract_error_message(error)}`,
       );
